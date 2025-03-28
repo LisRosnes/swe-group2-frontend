@@ -82,35 +82,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-// function PersonalInfo() {
-//     return (
-//         <>
-//             <p><strong>Name:</strong> Elisa</p>
-//             <p><strong>Email:</strong> username@gmail.com</p>
-//             <p><strong>Bio:</strong> Blah Blah </p>
-//         </>
-//     )
-// }
-
-// function CommunitySummary() {
-//     return (
-//         <>
-//             <p><strong>Total Reviews:</strong> 10</p>
-//             <p><strong>Total Teams:</strong> 5</p>
-//         </>
-//     )
-// }
-
-// function MyReviews() {
-
-//     return (
-//         <>
-//             <h3>My Reviews</h3>
-//             <ul>
-//                 <li>Game 1 | ⭐⭐⭐⭐ | "Great game!"</li>
-//                 <li>Game 2 | ⭐⭐⭐ | "It was okay."</li>
-//                 <li>Game 3 | ⭐⭐⭐⭐⭐ | "Best game ever!"</li>
-//             </ul>
-//         </>
-//     )
-// }
