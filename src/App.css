@@ -44,6 +44,40 @@
   pointer-events: none;
 }
 
+
+
+.teams-buttons-container {
+  display: flex;
+  flex-direction: column; 
+  gap: 12px; 
+  margin: 20px auto;
+  width: 80%; 
+  max-width: 300px; 
+  align-items: center; 
+}
+
+.team-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  width: 100%; 
+  text-align: center;
+}
+
+.team-button:hover {
+  background-color: #357abd;
+  transform: translateX(5px); 
+}
+
+.team-button:active {
+  transform: translateX(0);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

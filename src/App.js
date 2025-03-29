@@ -1,33 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
-import logo from './logo.svg'; // Placeholder image for both games and teams
+import logo from './logo.svg'; 
 
 const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
 
-// Placeholder team data
-const sampleTeams = [
-  {
-    id: 'team-1',
-    name: 'Team Alpha',
-    host: 'PlayerOne',
-    members: ['PlayerTwo', 'PlayerThree'],
-    thumbnail: logo, // Fallback to the same logo or any custom image
-  },
-  {
-    id: 'team-2',
-    name: 'Team Beta',
-    host: 'PlayerX',
-    members: ['PlayerY', 'PlayerZ', 'PlayerZZ'],
-    thumbnail: logo,
-  },
-  {
-    id: 'team-3',
-    name: 'Team Gamma',
-    host: 'PlayerM',
-    members: ['PlayerN', 'PlayerO'],
-    thumbnail: logo,
-  },
+const teamsList = [
+  { id: 'team-1', name: 'Team Alpha' },
+  { id: 'team-2', name: 'Team Beta' },
+  { id: 'team-3', name: 'Team Gamma' },
+  { id: 'team-4', name: 'Team Delta' },
+  { id: 'team-5', name: 'Team Omega' }
 ];
 
 function App() {
@@ -36,7 +19,6 @@ function App() {
   const [randomGames, setRandomGames] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch 3 random games from RAWG on mount
   useEffect(() => {
     const randomPage = Math.floor(Math.random() * 100) + 1;
     fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=${randomPage}&page_size=3`)
@@ -55,16 +37,15 @@ function App() {
 
   const handleSearchSubmit = () => {
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
-    // If game fetch from RAWG
-    // If team fetch from your server
+
   };
 
   const handleProfileClick = () => {
-    navigate('/profile'); // <Route path="/profile" ... /> will be linked with our profile
+    navigate('/profile'); 
   };
 
   const handleLoginClick = () => {
-    navigate('/login'); // <Route path="/login" ... /> will be linked with our login page
+    navigate('/login'); 
   };
 
   return (
@@ -114,20 +95,17 @@ function App() {
         ))}
       </div>
 
-      {/* Teams (Placeholder data) */}
-      <h2>Placeholder Team Cards</h2>
-      <div className="cards-container">
-        {sampleTeams.map((team) => (
-          <div className="card" key={team.id}>
-            <img
-              src={team.thumbnail}
-              alt={team.name}
-              style={{ width: '100%' }}
-            />
-            <h3>{team.name}</h3>
-            <p>Host: {team.host}</p>
-            <p>Members: {team.members.join(', ')}</p>
-          </div>
+      {/* Teams as clickable buttons */}
+      <h2>Sample Teams</h2>
+      <div className="teams-buttons-container">
+        {teamsList.map((team) => (
+          <button 
+            key={team.id}
+            className="team-button"
+            onClick={() => navigate(`/team/${team.id}`)}
+          >
+            {team.name}
+          </button>
         ))}
       </div>
     </div>
