@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './ProfilePage.css'; 
 // Profile Page Component
     // Profile summary comp
         // personal info (editable form)
@@ -16,6 +18,7 @@ import React, { useState } from 'react';
 
 const ProfilePage = () => {
     // Example profile state
+    const navigate = useNavigate();
     const [profile, setProfile] = useState({
         username: 'GameExplorer',
         email: 'gameexplorer@example.com',
@@ -44,6 +47,9 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
+      <button className="back-button" onClick={() => navigate('/')}>
+        Back
+      </button>
       <div className="profile-header">
         <h1>My Profile</h1>
         <button onClick={handleEditProfile}>Edit Profile</button>
