@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
-import logo from './logo.svg'; 
+import logo from './logo.svg';
 
 const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
 
@@ -37,15 +37,18 @@ function App() {
 
   const handleSearchSubmit = () => {
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
+  };
 
+  const handleBuildTeamClick = () => {
+    navigate('/build-team');
   };
 
   const handleProfileClick = () => {
-    navigate('/profile'); 
+    navigate('/profile');
   };
 
   const handleLoginClick = () => {
-    navigate('/login'); 
+    navigate('/login');
   };
 
   return (
@@ -74,6 +77,7 @@ function App() {
         </div>
 
         <div className="header-buttons">
+          <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
           <button onClick={handleProfileClick}>My Profile</button>
           <button onClick={handleLoginClick}>Login</button>
         </div>
@@ -99,7 +103,7 @@ function App() {
       <h2>Sample Teams</h2>
       <div className="teams-buttons-container">
         {teamsList.map((team) => (
-          <button 
+          <button
             key={team.id}
             className="team-button"
             onClick={() => navigate(`/team/${team.id}`)}
