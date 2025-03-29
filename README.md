@@ -1,3 +1,15 @@
+# The Frontend for the Game Website
+
+This is a prototype version with mock data and has not yet been integrated with the backend. All data shown is simulated for demonstration purposes.
+
+## Login Instructions
+Simply click the login button and enter any random characters in the login fields - the system will accept any input during this demo phase.
+
+## Profile Access
+After logging in, you'll be able to access your Profile through the navigation menu.
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
