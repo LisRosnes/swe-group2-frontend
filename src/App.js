@@ -17,7 +17,20 @@ function App() {
   const [searchType, setSearchType] = useState('game');
   const [searchValue, setSearchValue] = useState('');
   const [randomGames, setRandomGames] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
   const navigate = useNavigate();
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const storedUsername = localStorage.getItem('username');
+    
+    if (token) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername || '');
+    }
+  }, []);
 
   useEffect(() => {
     const randomPage = Math.floor(Math.random() * 100) + 1;
@@ -40,6 +53,12 @@ function App() {
   };
 
   const handleBuildTeamClick = () => {
+    // Redirect to login if not logged in
+    if (!isLoggedIn) {
+      alert('Please log in to create a team');
+      navigate('/login');
+      return;
+    }
     navigate('/build-team');
   };
 
@@ -49,6 +68,16 @@ function App() {
 
   const handleLoginClick = () => {
     navigate('/login');
+  };
+
+  const handleLogoutClick = () => {
+    // Clear authentication data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    setIsLoggedIn(false);
+    setUsername('');
+    // Stay on the current page
   };
 
   return (
@@ -78,8 +107,17 @@ function App() {
 
         <div className="header-buttons">
           <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
-          <button onClick={handleProfileClick}>My Profile</button>
-          <button onClick={handleLoginClick}>Login</button>
+          
+          {isLoggedIn ? (
+            <>
+              <button onClick={handleProfileClick} className="profile-btn">
+                {username}'s Profile
+              </button>
+              <button onClick={handleLogoutClick} className="logout-btn">Logout</button>
+            </>
+          ) : (
+            <button onClick={handleLoginClick} className="login-btn">Login</button>
+          )}
         </div>
       </div>
 
