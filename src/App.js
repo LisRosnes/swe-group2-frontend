@@ -1,64 +1,94 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from './logo.svg'; // Placeholder image for both games and teams
 
-//Placeholder data for game cards
+const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
 
-const sampleGames = [
+// Placeholder team data
+const sampleTeams = [
   {
-    id: 1,
-    name: 'Placeholder Game 1',
-    description: 'NA1',
-    thumbnail: logo, // Using the same logo as a placeholder
+    id: 'team-1',
+    name: 'Team Alpha',
+    host: 'PlayerOne',
+    members: ['PlayerTwo', 'PlayerThree'],
+    thumbnail: logo, // Fallback to the same logo or any custom image
   },
   {
-    id: 2,
-    name: 'Placeholder Game 2',
-    description: 'NA2',
+    id: 'team-2',
+    name: 'Team Beta',
+    host: 'PlayerX',
+    members: ['PlayerY', 'PlayerZ', 'PlayerZZ'],
     thumbnail: logo,
   },
   {
-    id: 3,
-    name: 'Placeholder Game 3',
-    description: 'NA3',
+    id: 'team-3',
+    name: 'Team Gamma',
+    host: 'PlayerM',
+    members: ['PlayerN', 'PlayerO'],
     thumbnail: logo,
-  }
+  },
 ];
 
 function App() {
-  // Example state for search input
+  const [searchType, setSearchType] = useState('game');
   const [searchValue, setSearchValue] = useState('');
+  const [randomGames, setRandomGames] = useState([]);
+  const navigate = useNavigate();
+
+  // Fetch 3 random games from RAWG on mount
+  useEffect(() => {
+    const randomPage = Math.floor(Math.random() * 100) + 1;
+    fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=${randomPage}&page_size=3`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.results) {
+          setRandomGames(data.results);
+        }
+      })
+      .catch((err) => console.error('Error fetching RAWG data:', err));
+  }, []);
 
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
 
   const handleSearchSubmit = () => {
-    // For now just log the search value to the console
-    // call an API or filter your game list here
-    console.log('Search submitted for:', searchValue);
+    console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
+    // If game fetch from RAWG
+    // If team fetch from your server
   };
 
   const handleProfileClick = () => {
-    // Placeholder: navigate to the profile page or show a profile modal
-    console.log('Profile Clicked');
+    navigate('/profile'); // <Route path="/profile" ... /> will be linked with our profile
   };
 
   const handleLoginClick = () => {
-    // Placeholder: navigate to login or open a login modal
-    console.log('Login Clicked');
+    navigate('/login'); // <Route path="/login" ... /> will be linked with our login page
   };
+
   return (
     <div className="App">
-      {/* Header section with search bar and action buttons */}
+      {/* Header section with dropdown, search bar, and buttons */}
       <div className="header-bar">
         <div className="search-bar">
+          {/* Toggle Game or Team */}
+          <select
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value)}
+          >
+            <option value="game">Game</option>
+            <option value="team">Team</option>
+          </select>
+
+          {/* Text input for the search query */}
           <input
             type="text"
-            placeholder="Search games..."
+            placeholder={`Search ${searchType}...`}
             value={searchValue}
             onChange={handleSearchChange}
           />
+
           <button onClick={handleSearchSubmit}>Search</button>
         </div>
 
@@ -68,14 +98,35 @@ function App() {
         </div>
       </div>
 
-      {/* A row of placeholder game cards */}
-      <div className="game-cards-container">
-        {sampleGames.map((game) => (
-          <div className="game-card" key={game.id}>
-            {/* thumbnail */}
-            <img src={game.thumbnail} alt={game.name} style={{ width: '100%' }} />
+      {/* Random Games from RAWG */}
+      <h2>Random Games from RAWG</h2>
+      <div className="cards-container">
+        {randomGames.map((game) => (
+          <div className="card" key={game.id}>
+            <img
+              src={game.background_image || logo}
+              alt={game.name}
+              style={{ width: '100%' }}
+            />
             <h3>{game.name}</h3>
-            <p>{game.description}</p>
+            <p>Released: {game.released || 'N/A'}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Teams (Placeholder data) */}
+      <h2>Placeholder Team Cards</h2>
+      <div className="cards-container">
+        {sampleTeams.map((team) => (
+          <div className="card" key={team.id}>
+            <img
+              src={team.thumbnail}
+              alt={team.name}
+              style={{ width: '100%' }}
+            />
+            <h3>{team.name}</h3>
+            <p>Host: {team.host}</p>
+            <p>Members: {team.members.join(', ')}</p>
           </div>
         ))}
       </div>
