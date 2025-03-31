@@ -52,6 +52,11 @@ function App() {
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
   };
 
+  const handleGameInfoClick = () => {
+    // Navigate to the Game Info page
+    navigate('/game-info');
+  };  
+
   const handleBuildTeamClick = () => {
     // Redirect to login if not logged in
     if (!isLoggedIn) {
@@ -106,7 +111,10 @@ function App() {
         </div>
 
         <div className="header-buttons">
+
           <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
+
+          <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button>
           
           {isLoggedIn ? (
             <>
