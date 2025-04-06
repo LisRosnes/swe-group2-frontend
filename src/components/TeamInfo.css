@@ -1,91 +1,103 @@
 .team-info-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .team-info-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .back-button {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 8px 16px;
-    margin-right: 20px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  
-  .team-info-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-  }
-  
-  .team-info-field {
-    margin-bottom: 20px;
-  }
-  
-  .team-info-field label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
-  }
-  
-  .team-info-field span, 
-  .team-info-field p {
-    font-size: 16px;
-  }
-  
-  .team-members-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 10px;
-  }
-  
-  .team-member {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f8f8f8;
-    padding: 10px;
-    border-radius: 8px;
-    width: 100px;
-  }
-  
-  .member-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 8px;
-  }
-  
-  .request-join-button {
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-  }
-  
-  .request-join-button:hover {
-    background-color: #357abD;
-  }
-  
-  .request-join-button:disabled {
-    background-color: #a0c0e4;
-    cursor: not-allowed;
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #f0f0f0;
+}
+
+.team-info-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  background-color: #333;
+  border: 1px solid #444;
+  padding: 8px 16px;
+  margin-right: 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #444;
+}
+
+.team-info-card {
+  background-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  border: 1px solid #333;
+}
+
+.team-info-field {
+  margin-bottom: 20px;
+}
+
+.team-info-field label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #4a90e2;
+}
+
+.team-info-field span,
+.team-info-field p {
+  font-size: 16px;
+  color: #e0e0e0;
+}
+
+.team-members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.team-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100px;
+  border: 1px solid #444;
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+  border: 2px solid #4a90e2;
+}
+
+.request-join-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.request-join-button:hover {
+  background-color: #357abD;
+}
+
+.request-join-button:disabled {
+  background-color: #2c4057;
+  color: #8096b3;
+  cursor: not-allowed;
+}
