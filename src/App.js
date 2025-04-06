@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const storedUsername = localStorage.getItem('username');
-    
+
     if (token) {
       setIsLoggedIn(true);
       setUsername(storedUsername || '');
@@ -49,7 +49,15 @@ function App() {
   };
 
   const handleSearchSubmit = () => {
-    console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
+    if (searchType === 'game') {
+      // Make sure the search value is not empty
+      if (!searchValue.trim()) return;
+      // Redirect to /search with the query parameter
+      navigate(`/search?query=${encodeURIComponent(searchValue.trim())}`);
+    } else {
+      console.log(`Team search submitted: ${searchValue}`);
+      // Add team search logic
+    }
   };
 
   const handleGameInfoClick = () => {
@@ -114,7 +122,7 @@ function App() {
           <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
 
           <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button>
-          
+
           {isLoggedIn ? (
             <>
               <button onClick={handleProfileClick} className="profile-btn">
