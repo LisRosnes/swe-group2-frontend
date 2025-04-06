@@ -49,15 +49,7 @@ function App() {
   };
 
   const handleSearchSubmit = () => {
-    if (searchType === 'game') {
-      // Make sure the search value is not empty
-      if (!searchValue.trim()) return;
-      // Redirect to /search with the query parameter
-      navigate(`/search?query=${encodeURIComponent(searchValue.trim())}`);
-    } else {
-      console.log(`Team search submitted: ${searchValue}`);
-      // Add team search logic
-    }
+    console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
   };
 
   const handleGameInfoClick = () => {
