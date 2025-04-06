@@ -15,7 +15,7 @@ const AppRouter = () => {
         <Route path="/" element={<App />} />
         <Route path="/team/:teamId" element={<TeamInfo />} />
         <Route path="/build-team" element={<BuildTeam />} />
-        <Route path="/game-info" element={<GameInfo />} />
+        <Route path="/game/:gameId" element={<GameInfo />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<ProfilePage />} />

@@ -43,6 +43,115 @@
   font-size: 16px;
 }
 
+
+.comment-section {
+  margin-top: 40px;
+  padding: 25px 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.comment-section h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #333;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-form textarea {
+  resize: vertical;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  margin-bottom: 12px;
+}
+
+.comment-form button {
+  align-self: flex-start;
+  padding: 8px 18px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.comment-form button:hover {
+  background-color: #e0e0e0;
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-left: 0;
+}
+
+.comment-list li {
+  padding: 12px 16px;
+  background-color: #f9f9f9;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.5;
+  list-style: none;
+}
+
+.comment-list li strong {
+  color: #222;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.build-team-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-right: 20px;
+}
+
+
+/* Title below buttons */
+.game-title-wrapper {
+  margin-top: 20px;
+}
+
+.game-title-wrapper h1 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Center game image */
+.game-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Already styled in your CSS, but included here for clarity */
 .game-image {
   width: 100%;
   max-width: 400px;

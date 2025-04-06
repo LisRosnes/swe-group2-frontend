@@ -53,9 +53,8 @@ function App() {
   };
 
   const handleGameInfoClick = () => {
-    // Navigate to the Game Info page
-    navigate('/game-info');
-  };  
+    navigate('/game/the-witcher-3-wild-hunt');
+  };
 
   const handleBuildTeamClick = () => {
     // Redirect to login if not logged in
