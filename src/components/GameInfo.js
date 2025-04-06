@@ -38,7 +38,7 @@ const GameInfo = () => {
           platform: data.platforms.map(p => p.platform.name).join(', '),
           image: data.background_image,
           review: data.description_raw,
-          score: `Metacritic Score: ${data.metacritic}`,
+          score:  data.metacritic,
         });
       } catch (error) {
         console.error('Failed to fetch game:', error);
@@ -114,8 +114,19 @@ const GameInfo = () => {
 
           <div className="game-info-field">
             <label>Score:</label>
-            <p>{game.score}</p>
+            <div className="star-rating">
+              {Array.from({ length: 5 }, (_, index) => {
+                const ratingOutOfFive = game.score ? game.score / 20 : 0;
+                return (
+                  <span key={index} className={`star ${index < Math.round(ratingOutOfFive) ? 'filled' : ''}`}>
+                    ★
+                  </span>
+                );
+              })}
+              <span className="numeric-score">{game.score ? game.score : 'N/A'}</span>
+            </div>
           </div>
+
         </div>
       )}
 
