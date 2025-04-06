@@ -1,10 +1,24 @@
 .profile-page {
-    max-width: 800px;
+    position: relative;
+    display: flex;
+    gap: 20px;
+    max-width: 1000px;
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .left-column {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  .right-column {
+    flex: 2;
   }
   
   .profile-header {
@@ -14,6 +28,18 @@
     margin-bottom: 30px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
+  }
+
+  .back-button {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    padding: 8px 8px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
   }
   
   .profile-header h1 {
@@ -28,21 +54,27 @@
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+
   }
   
   .profile-header button:hover {
     background-color: #357abD;
   }
   
-  .profile-details {
-    margin-bottom: 30px;
-  }
+  /* .profile-details {
+    margin-bottom: 500px;
+  } */
   
-  .profile-details h2 {
+  .profile-page h2 {
     color: #4a90e2;
     margin-top: 0;
     border-bottom: 2px solid #f0f0f0;
     padding-bottom: 10px;
+  }
+
+  .profile-page p {
+    margin: 5px 0;
+    color: #555;
   }
   
   .game-review-container {
