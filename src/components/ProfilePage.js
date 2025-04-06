@@ -83,8 +83,8 @@ const ProfilePage = () => {
             {profile.gameReviews.map((game) => (
               <div key={game.id} className="game-review-card">
                   <h3>{game.name}</h3>
-                  <p>Rating: {game.rating}</p>
-                  <p>Review: {game.review}</p>
+                  <p><strong>Rating:</strong> {game.rating}</p>
+                  <p><strong>Review:</strong> {game.review}</p>
               </div>
             ))}
           </div>
