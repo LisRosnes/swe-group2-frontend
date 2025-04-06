@@ -1,82 +1,66 @@
-# The Frontend for the Game Website
+# Game Website Frontend
+Our web application provides a comprehensive platform for gamers to search, view, and interact with game information and build teams for multiplayer games.
 
-This is a prototype version with mock data and has not yet been integrated with the backend. All data shown is simulated for demonstration purposes.
+## Getting Started
 
-## Login Instructions
-Simply click the login button and enter any random characters in the login fields - the system will accept any input during this demo phase.
+1. Navigate to the project directory:
+   ```bash
+   cd your-project-directory
+   ```
 
-## Profile Access
-After logging in, you'll be able to access your Profile through the navigation menu.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. Register and log in:  
+   This feature is not yet connected to the backend, so you can use any placeholder credentials to log in.
+
+5. You can now browse all the available pages.
 
 
+## Page Structure Overview
 
-# Getting Started with Create React App
+### Home Page
+The main page of our application serves as the central hub with multiple features:
+- Displays a curated list of different games and teams
+- Includes a search bar for finding specific games
+- Features navigation buttons for Login, Profile, and Build Team
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Game Page
+When a user clicks on a game title from the home page:
+- Presents detailed information about the selected game
+- Shows comprehensive game data, specifications, and related content
+- Optimized for readability with custom styling for dark backgrounds
 
-## Available Scripts
+### Team Page
+Accessed by clicking on a team name:
+- Displays detailed team information
+- Lists all team members
+- Shows team creation date and history
+- Presents other relevant team statistics
 
-In the project directory, you can run:
+### Build Team Page
+Accessible via the Build Team button:
+- Provides interface for creating new teams
+- Allows users to set team parameters
+- Features tools for team customization and management
 
-### `npm start`
+### Profile Page
+When users click the Profile button:
+- Shows user's personal information
+- Displays history of user's comments and activities
+- Features a back button for easy navigation to previous pages
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Login/Register Page
+Accessed through the Login button:
+- Provides user authentication interface
+- Includes options for new user registration
+- Features clean, intuitive design for ease of use
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Each page is designed with consistent navigation elements and optimized styling for an enhanced user experience.
