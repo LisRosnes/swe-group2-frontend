@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from './logo.svg';
 
 const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
-
-const teamsList = [
-  { id: 'team-1', name: 'Team Alpha' },
-  { id: 'team-2', name: 'Team Beta' },
-  { id: 'team-3', name: 'Team Gamma' },
-  { id: 'team-4', name: 'Team Delta' },
-  { id: 'team-5', name: 'Team Omega' }
-];
 
 function App() {
   const [searchType, setSearchType] = useState('game');
@@ -20,6 +12,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
+  const [searchResults, setSearchResults] = useState(null);
+  const [teamSearchMessage, setTeamSearchMessage] = useState('');
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -49,6 +43,54 @@ function App() {
   };
 
   const handleSearchSubmit = () => {
+    if (searchType === 'game') {
+      // Dummy data for matching games
+      const dummyGameResults = [
+        {
+          id: 'game-101',
+          name: 'Matching Game 1',
+          released: '2023-01-01',
+          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+        },
+        {
+          id: 'game-102',
+          name: 'Matching Game 2',
+          released: '2023-02-01',
+          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+        },
+        {
+          id: 'game-103',
+          name: 'Matching Game 3',
+          released: '2023-03-01',
+          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+        },
+      ];
+      setSearchResults({ type: 'game', data: dummyGameResults });
+      setTeamSearchMessage('');
+    } else if (searchType === 'team') {
+      // Dummy team search: simulate a match if search keyword includes 'alpha' or 'beta'
+      const lowerSearch = searchValue.toLowerCase();
+      let dummyTeamMatches = [];
+      if (lowerSearch.includes('alpha') || lowerSearch.includes('beta')) {
+        dummyTeamMatches = [
+          { id: 'team-1', name: 'Team 1' },
+          { id: 'team-2', name: 'Team 2' },
+        ];
+      }
+      if (dummyTeamMatches.length > 0) {
+        setSearchResults({ type: 'team', data: dummyTeamMatches });
+        setTeamSearchMessage('');
+      } else {
+        // No matching teams found then show message and recommended teams
+        const recommendedTeams = [
+          { id: 'team-1', name: 'Team 1' },
+          { id: 'team-2', name: 'Team 2' },
+          { id: 'team-3', name: 'Team 3' },
+        ];
+        setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
+        setSearchResults({ type: 'team', data: recommendedTeams });
+      }
+    }
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
   };
 
@@ -92,7 +134,11 @@ function App() {
           {/* Toggle Game or Team */}
           <select
             value={searchType}
-            onChange={(e) => setSearchType(e.target.value)}
+            onChange={(e) => {
+              setSearchType(e.target.value);
+              setSearchResults(null); // Reset search results when switching
+              setTeamSearchMessage('');
+            }}
           >
             <option value="game">Game</option>
             <option value="team">Team</option>
@@ -128,35 +174,59 @@ function App() {
         </div>
       </div>
 
-      {/* Random Games from RAWG */}
-      <h2>Random Games from RAWG</h2>
-      <div className="cards-container">
-        {randomGames.map((game) => (
-          <div className="card" key={game.id}>
-            <img
-              src={game.background_image || logo}
-              alt={game.name}
-              style={{ width: '100%' }}
-            />
-            <h3>{game.name}</h3>
-            <p>Released: {game.released || 'N/A'}</p>
+      {searchResults ? (
+        searchResults.type === 'game' ? (
+          <>
+            <h2>Search Results for Games</h2>
+            <div className="cards-container">
+              {searchResults.data.map((game) => (
+                <div className="card" key={game.id}>
+                  <Link to={`/game/${game.id}`}>
+                    <img
+                      src={game.background_image || logo}
+                      alt={game.name}
+                      style={{ width: '100%' }}
+                    />
+                  </Link>
+                  <h3>{game.name}</h3>
+                  <p>Released: {game.released || 'N/A'}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>Search Results for Teams</h2>
+            {teamSearchMessage && <p>{teamSearchMessage}</p>}
+            <div className="cards-container">
+              {searchResults.data.map((team) => (
+                <div className="card" key={team.id}>
+                  <h3>{team.name}</h3>
+                </div>
+              ))}
+            </div>
+          </>
+        )
+      ) : (
+        <>
+          <h2>Random Games from RAWG</h2>
+          <div className="cards-container">
+            {randomGames.map((game) => (
+              <div className="card" key={game.id}>
+                <Link to={`/game/${game.id}`}>
+                  <img
+                    src={game.background_image || logo}
+                    alt={game.name}
+                    style={{ width: '100%' }}
+                  />
+                </Link>
+                <h3>{game.name}</h3>
+                <p>Released: {game.released || 'N/A'}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* Teams as clickable buttons */}
-      <h2>Sample Teams</h2>
-      <div className="teams-buttons-container">
-        {teamsList.map((team) => (
-          <button
-            key={team.id}
-            className="team-button"
-            onClick={() => navigate(`/team/${team.id}`)}
-          >
-            {team.name}
-          </button>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 }
