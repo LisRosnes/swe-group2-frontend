@@ -45,7 +45,7 @@ function App() {
 
   const handleSearchSubmit = () => {
     if (searchType === 'game') {
-      // Using RAWG API for game search with top 12 matches
+      // Using rawg API for game search with top 12 matches
       fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(searchValue)}&page_size=12`)
         .then((res) => res.json())
         .then((data) => {
