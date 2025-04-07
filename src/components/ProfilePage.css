@@ -43,8 +43,8 @@
 
 .back-button {
   position: absolute;
-  top: 15px;
-  right: 10px;
+  top: 30px;
+  right: 12px;
   padding: 8px 8px;
   background-color: #4a90e2;
   color: white;
@@ -113,11 +113,21 @@
 }
 
 .team-card {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Adjust spacing between the image and text */
   border: 1px solid #3a3a3a;
   border-radius: 5px;
   padding: 15px;
   background-color: #333333;
 }
+
+.team-card img {
+  width: 100px; /* Adjust the width as needed */
+  height: auto;
+  border-radius: 4px;
+}
+
 
 .team-card h3 {
   margin-top: 0;

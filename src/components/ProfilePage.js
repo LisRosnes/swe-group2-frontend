@@ -46,13 +46,15 @@ const ProfilePage = () => {
                 id: 'team-1',
                 name: 'Team Alpha',
                 description: 'A team of elite gamers.',
-                members: ['John', 'Jane', 'Doe']
+                members: ['John', 'Jane', 'Doe'],
+                img: '/team1.jpg'
             },
             {
                 id: 'team-2',
                 name: 'Team Beta',
                 description: 'Casual gamers united.',
-                members: ['Alice', 'Bob']
+                members: ['Alice', 'Bob'],
+                img: '/team2.jpg'
             }
         ]
     });
@@ -146,44 +148,44 @@ const ProfilePage = () => {
             </>
           ) : (
             <div className="edit-form">
-            <div className="form-group">
-                <label>First Name:</label>
-                <input type="text" name="firstName" value={editedProfile.firstName} onChange={handleInputChange} />
-            </div>
-            
-            <div className="form-group">
-                <label>Last Name:</label>
-                <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange}/>
-            </div>
-            
-            <div className="form-group">
-                <label>Username:</label>
-                <input type="text" name="username" value={editedProfile.username} onChange={handleInputChange} />
-            </div>
-            
-            <div className="form-group">
-                <label>Email:</label>
-                <input type="email" name="email" value={editedProfile.email} onChange={handleInputChange} />
-            </div>
-            
-            <div className="form-group">
-                <label>Bio:</label>
-                <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4"/>
-            </div>
-            
-            <div className="form-group">
-                <label>Favorite Genres:</label>
-                {editedProfile.favoriteGenres.map((genre, index) => (
-                    <div key={index} className="genre-input">
-                        <input type="text" value={genre} onChange={(e) => handleGenreChange(e, index)} />
-                        <button type="button" onClick={() => removeGenreField(index)} className="remove-genre">
-                            Remove
-                        </button>
-                    </div>
-                ))}
-                <button type="button" onClick={addGenreField} className="add-genre">
-                    Add Genre
-                </button>
+              <div className="form-group">
+                  <label>First Name:</label>
+                  <input type="text" name="firstName" value={editedProfile.firstName} onChange={handleInputChange} />
+              </div>
+              
+              <div className="form-group">
+                  <label>Last Name:</label>
+                  <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange}/>
+              </div>
+              
+              <div className="form-group">
+                  <label>Username:</label>
+                  <input type="text" name="username" value={editedProfile.username} onChange={handleInputChange} />
+              </div>
+              
+              <div className="form-group">
+                  <label>Email:</label>
+                  <input type="email" name="email" value={editedProfile.email} onChange={handleInputChange} />
+              </div>
+              
+              <div className="form-group">
+                  <label>Bio:</label>
+                  <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4"/>
+              </div>
+              
+              <div className="form-group">
+                  <label>Favorite Genres:</label>
+                  {editedProfile.favoriteGenres.map((genre, index) => (
+                      <div key={index} className="genre-input">
+                          <input type="text" value={genre} onChange={(e) => handleGenreChange(e, index)} />
+                          <button type="button" onClick={() => removeGenreField(index)} className="remove-genre">
+                              Remove
+                          </button>
+                      </div>
+                  ))}
+                  <button type="button" onClick={addGenreField} className="add-genre">
+                      Add Genre
+                  </button>
             </div>
         </div>
     )}
@@ -194,33 +196,38 @@ const ProfilePage = () => {
 </div>
 </div>
 
-<div className="right-column">
-<div className="review-summary">
-    <h2>Game Reviews</h2>
-    <div className="game-review-container">
-        {profile.gameReviews.map((game) => (
-            <div key={game.id} className="game-review-card">
-                <h3>{game.name}</h3>
-                <p><strong>Rating:</strong> {game.rating}</p>
-                <p><strong>Review:</strong> {game.review}</p>
-            </div>
-        ))}
+  <div className="right-column">
+    <div className="review-summary">
+        <h2>Game Reviews</h2>
+        <div className="game-review-container">
+            {profile.gameReviews.map((game) => (
+                <div key={game.id} className="game-review-card">
+                    <h3>{game.name}</h3>
+                    <p><strong>Rating:</strong> {game.rating}</p>
+                    <p><strong>Review:</strong> {game.review}</p>
+                </div>
+            ))}
+        </div>
     </div>
-</div>
-<div className="community-summary">
-    <h2>My Teams</h2>
-    <div className="team-container">
-        {profile.gameTeams.map((team) => (
-            <button key={team.id} className="team-card"
-            onClick={() => navigate(`/team/${team.id}`)}>
-                <h3>{team.name}</h3>
-                <p><strong>Description:</strong> {team.description}</p>
-                <p><strong>Members:</strong> {team.members.join(', ')}</p>
-            </button>
-        ))}
+    <div className="community-summary">
+        <h2>My Teams</h2>
+        <div className="team-container">
+            {profile.gameTeams.map((team) => (
+                <button key={team.id} className="team-card"
+                onClick={() => navigate(`/team/${team.id}`)}>
+                <img
+                  src={team.img}
+                  alt={`${team.id} image`}
+                  className="team-image"
+                />
+                    <h3>{team.name}</h3>
+                    <p><strong>Description:</strong> {team.description}</p>
+                    <p><strong>Members:</strong> {team.members.join(', ')}</p>
+                </button>
+            ))}
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div>
 );
 };
