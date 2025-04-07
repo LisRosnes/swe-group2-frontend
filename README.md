@@ -23,6 +23,15 @@ Our web application provides a comprehensive platform for gamers to search, view
 
 5. You can now browse all the available pages.
 
+- **Homepage Navigation:**  
+  Click on a game image to enter the **Game Info** page.
+
+- **Top-Left Game Menu:**  
+  Click the "Game" label on the top-left to choose between **Game Search** and **Team Search**.
+
+- **Team Search:**  
+  After performing a team search, you will see a list of available teams.  
+  Click on any team to view its detailed **Team Info** page.
 
 ## Page Structure Overview
 
