@@ -50,19 +50,19 @@ function App() {
           id: '5525',
           name: 'Brutal Legend',
           released: '2009-10-13',
-          background_image: 'https://dummyimage.com/300x200/000/fff&text=Game+1',
+          background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
         },
         {
           id: '43877',
           name: 'Quake Champions',
           released: '2017-08-22',
-          background_image: 'https://dummyimage.com/300x200/000/fff&text=Game+2',
+          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
         },
         {
           id: '3790',
           name: 'Outlast',
           released: '2013-09-04',
-          background_image: 'https://dummyimage.com/300x200/000/fff&text=Game+3',
+          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
         },
       ];
       setSearchResults({ type: 'game', data: dummyGameResults });
@@ -73,8 +73,20 @@ function App() {
       let dummyTeamMatches = [];
       if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
         dummyTeamMatches = [
-          { id: 'team-1', name: 'Team 1' },
-          { id: 'team-2', name: 'Team 2' },
+          {
+            id: 'team-1',
+            game: 'Brutal Legend',
+            name: 'Alpha Squad',
+            members: ['Alice', 'Bob', 'Charlie'],
+            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+          },
+          {
+            id: 'team-2',
+            game: 'Outlast',
+            name: 'Survivors',
+            members: ['Dave', 'Eve'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+          },
         ];
       }
       if (dummyTeamMatches.length > 0) {
@@ -83,9 +95,27 @@ function App() {
       } else {
         // No matching teams found then show message and recommended teams
         const recommendedTeams = [
-          { id: 'team-1', name: 'Team 1' },
-          { id: 'team-2', name: 'Team 2' },
-          { id: 'team-3', name: 'Team 3' },
+          {
+            id: 'team-1',
+            game: 'Brutal Legend',
+            name: 'Alpha Squad',
+            members: ['Alice', 'Bob', 'Charlie'],
+            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+          },
+          {
+            id: 'team-2',
+            game: 'Outlast',
+            name: 'Survivors',
+            members: ['Dave', 'Eve'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+          },
+          {
+            id: 'team-3',
+            game: 'Quake Champions',
+            name: 'Champions United',
+            members: ['Frank', 'Grace', 'Heidi'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
+          },
         ];
         setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
         setSearchResults({ type: 'team', data: recommendedTeams });
@@ -195,11 +225,10 @@ function App() {
             <div className="search-results-grid">
               {searchResults.data.map((team) => (
                 <Link to={`/team/${team.id}`} className="team-card" key={team.id}>
-                  <img
-                    src="https://dummyimage.com/300x200/000/fff&text=Team"
-                    alt={team.name}
-                  />
-                  <h3>{team.name}</h3>
+                  <img src={team.background_image || logo} alt={team.game} />
+                  <h4>Game: {team.game}</h4>
+                  <h3>Team: {team.name}</h3>
+                  <p>Members: {team.members.join(', ')}</p>
                 </Link>
               ))}
             </div>
