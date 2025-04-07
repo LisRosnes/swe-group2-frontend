@@ -32,13 +32,15 @@ const ProfilePage = () => {
             id: 1,
             name: 'Placeholder Game 1',
             rating: 4,
-            review: 'Great game with immersive gameplay!'
+            review: 'Great game with immersive gameplay!', 
+            img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
         },
         {
             id: 2,
             name: 'Placeholder Game 2',
             rating: 5,
-            review: 'Enjoyed the graphics and storyline.'
+            review: 'Enjoyed the graphics and storyline.',
+            img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
         }
         ],
         gameTeams: [
@@ -135,6 +137,7 @@ const ProfilePage = () => {
         <div className="profile-details">
           {!isEditing ? (
             <>
+              <p><strong>Bio: </strong>{profile.bio}</p>
               <p><strong>Name:</strong> {profile.firstName} {profile.lastName}</p>
               <p><strong>Username:</strong> {profile.username}</p>
               <p><strong>Email</strong> {profile.email}</p>
@@ -202,6 +205,11 @@ const ProfilePage = () => {
         <div className="game-review-container">
             {profile.gameReviews.map((game) => (
                 <div key={game.id} className="game-review-card">
+                    <img
+                      src={game.img}
+                      alt={`${game.name} image`}
+                      className="game-image"
+                    />
                     <h3>{game.name}</h3>
                     <p><strong>Rating:</strong> {game.rating}</p>
                     <p><strong>Review:</strong> {game.review}</p>

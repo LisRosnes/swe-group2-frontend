@@ -91,12 +91,20 @@
 }
 
 .game-review-card {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Adjust spacing between the image and text */
   border: 1px solid #3a3a3a;
   border-radius: 5px;
   padding: 15px;
   background-color: #333333;
 }
 
+.game-review-card img {
+  width: 100px; /* Adjust the width as needed */
+  height: auto;
+  border-radius: 4px;
+}
 .game-review-card h3 {
   margin-top: 0;
   color: #d2d2d2;
