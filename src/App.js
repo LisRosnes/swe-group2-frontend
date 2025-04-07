@@ -47,22 +47,22 @@ function App() {
       // Dummy data for matching games
       const dummyGameResults = [
         {
-          id: 'game-101',
-          name: 'Matching Game 1',
-          released: '2023-01-01',
-          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+          id: '5525',
+          name: 'Brutal Legend',
+          released: '2009-10-13',
+          background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
         },
         {
-          id: 'game-102',
-          name: 'Matching Game 2',
-          released: '2023-02-01',
-          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+          id: '43877',
+          name: 'Quake Champions',
+          released: '2017-08-22',
+          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
         },
         {
-          id: 'game-103',
-          name: 'Matching Game 3',
-          released: '2023-03-01',
-          background_image: 'https://github.com/mu-xiaofan/Icy/blob/main/icy.png',
+          id: '3790',
+          name: 'Outlast',
+          released: '2013-09-04',
+          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
         },
       ];
       setSearchResults({ type: 'game', data: dummyGameResults });
@@ -71,10 +71,22 @@ function App() {
       // Dummy team search: simulate a match if search keyword includes 'alpha' or 'beta'
       const lowerSearch = searchValue.toLowerCase();
       let dummyTeamMatches = [];
-      if (lowerSearch.includes('alpha') || lowerSearch.includes('beta')) {
+      if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
         dummyTeamMatches = [
-          { id: 'team-1', name: 'Team 1' },
-          { id: 'team-2', name: 'Team 2' },
+          {
+            id: 'team-1',
+            game: 'Brutal Legend',
+            name: 'Alpha Squad',
+            members: ['Alice', 'Bob', 'Charlie'],
+            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+          },
+          {
+            id: 'team-2',
+            game: 'Outlast',
+            name: 'Survivors',
+            members: ['Dave', 'Eve'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+          },
         ];
       }
       if (dummyTeamMatches.length > 0) {
@@ -83,9 +95,27 @@ function App() {
       } else {
         // No matching teams found then show message and recommended teams
         const recommendedTeams = [
-          { id: 'team-1', name: 'Team 1' },
-          { id: 'team-2', name: 'Team 2' },
-          { id: 'team-3', name: 'Team 3' },
+          {
+            id: 'team-1',
+            game: 'Brutal Legend',
+            name: 'Alpha Squad',
+            members: ['Alice', 'Bob', 'Charlie'],
+            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+          },
+          {
+            id: 'team-2',
+            game: 'Outlast',
+            name: 'Survivors',
+            members: ['Dave', 'Eve'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+          },
+          {
+            id: 'team-3',
+            game: 'Quake Champions',
+            name: 'Champions United',
+            members: ['Frank', 'Grace', 'Heidi'],
+            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
+          },
         ];
         setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
         setSearchResults({ type: 'team', data: recommendedTeams });
@@ -178,19 +208,13 @@ function App() {
         searchResults.type === 'game' ? (
           <>
             <h2>Search Results for Games</h2>
-            <div className="cards-container">
+            <div className="search-results-grid">
               {searchResults.data.map((game) => (
-                <div className="card" key={game.id}>
-                  <Link to={`/game/${game.id}`}>
-                    <img
-                      src={game.background_image || logo}
-                      alt={game.name}
-                      style={{ width: '100%' }}
-                    />
-                  </Link>
+                <Link to={`/game/${game.id}`} className="game-card" key={game.id}>
+                  <img src={game.background_image} alt={game.name} />
                   <h3>{game.name}</h3>
-                  <p>Released: {game.released || 'N/A'}</p>
-                </div>
+                  <p>Released: {game.released}</p>
+                </Link>
               ))}
             </div>
           </>
@@ -198,18 +222,21 @@ function App() {
           <>
             <h2>Search Results for Teams</h2>
             {teamSearchMessage && <p>{teamSearchMessage}</p>}
-            <div className="cards-container">
+            <div className="search-results-grid">
               {searchResults.data.map((team) => (
-                <div className="card" key={team.id}>
-                  <h3>{team.name}</h3>
-                </div>
+                <Link to={`/team/${team.id}`} className="team-card" key={team.id}>
+                  <img src={team.background_image || logo} alt={team.game} />
+                  <h4>Game: {team.game}</h4>
+                  <h3>Team: {team.name}</h3>
+                  <p>Members: {team.members.join(', ')}</p>
+                </Link>
               ))}
             </div>
           </>
         )
       ) : (
         <>
-          <h2>Random Games from RAWG</h2>
+          <h2>Games Discovery</h2>
           <div className="cards-container">
             {randomGames.map((game) => (
               <div className="card" key={game.id}>
