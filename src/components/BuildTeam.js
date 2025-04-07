@@ -5,9 +5,10 @@ import './BuildTeam.css';
 const BuildTeam = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    gameName: '',
+    gameName: 'Apex Legends', 
     teamName: '',
-    time: '',
+    timeRange: '',
+    size: '3', 
     description: ''
   });
 
@@ -22,9 +23,7 @@ const BuildTeam = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Team creation form submitted:', formData);
-    
-    // Here is the place that require data from backend
-    // Sumulate part
+
 
     alert('Team created successfully!');
     navigate('/');
@@ -32,12 +31,11 @@ const BuildTeam = () => {
 
   return (
     <div className="build-team-container">
+      <div className="background-overlay"></div>
       <h1>Build Team Page</h1>
-      
       <button className="back-button" onClick={() => navigate('/')}>
         Back
       </button>
-      
       <form className="team-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="gameName">Game Name:</label>
@@ -50,7 +48,6 @@ const BuildTeam = () => {
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="teamName">Team Name:</label>
           <input
@@ -62,19 +59,34 @@ const BuildTeam = () => {
             required
           />
         </div>
-        
         <div className="form-group">
-          <label htmlFor="time">Time: (time schedule to play)</label>
+          <label htmlFor="size">Team Size:</label>
+          <select
+            id="size"
+            name="size"
+            value={formData.size}
+            onChange={handleChange}
+            required
+          >
+            <option value="2">2 Players</option>
+            <option value="3">3 Players</option>
+            <option value="4">4 Players</option>
+            <option value="5">5 Players</option>
+            <option value="6+">6+ Players</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="timeRange">Time Schedule:</label>
           <input
             type="text"
-            id="time"
-            name="time"
-            value={formData.time}
+            id="timeRange"
+            name="timeRange"
+            value={formData.timeRange}
             onChange={handleChange}
+            placeholder="e.g.,Weekends 2-5 PM EST"
             required
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="description">Description: (team goals, requirements)</label>
           <textarea
@@ -86,7 +98,6 @@ const BuildTeam = () => {
             required
           />
         </div>
-        
         <button type="submit" className="create-team-button">
           Create Team
         </button>
