@@ -14,6 +14,7 @@ function App() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState(null);
   const [teamSearchMessage, setTeamSearchMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // for game search
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -44,31 +45,19 @@ function App() {
 
   const handleSearchSubmit = () => {
     if (searchType === 'game') {
-      // Dummy data for matching games
-      const dummyGameResults = [
-        {
-          id: '5525',
-          name: 'Brutal Legend',
-          released: '2009-10-13',
-          background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
-        },
-        {
-          id: '43877',
-          name: 'Quake Champions',
-          released: '2017-08-22',
-          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
-        },
-        {
-          id: '3790',
-          name: 'Outlast',
-          released: '2013-09-04',
-          background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
-        },
-      ];
-      setSearchResults({ type: 'game', data: dummyGameResults });
+      // Using RAWG API for game search with top 12 matches
+      fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(searchValue)}&page_size=12`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.results) {
+            setSearchResults({ type: 'game', data: data.results });
+            setCurrentPage(1); // Reset page to 1 for new search
+          }
+        })
+        .catch((err) => console.error('Error searching games:', err));
       setTeamSearchMessage('');
     } else if (searchType === 'team') {
-      // Dummy team search: simulate a match if search keyword includes 'alpha' or 'beta'
+      // Dummy team search
       const lowerSearch = searchValue.toLowerCase();
       let dummyTeamMatches = [];
       if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
@@ -156,6 +145,11 @@ function App() {
     // Stay on the current page
   };
 
+  const paginatedGameResults =
+    searchResults && searchResults.type === 'game'
+      ? searchResults.data.slice((currentPage - 1) * 6, currentPage * 6)
+      : [];
+
   return (
     <div className="App">
       {/* Header section with dropdown, search bar, and buttons */}
@@ -209,13 +203,26 @@ function App() {
           <>
             <h2>Search Results for Games</h2>
             <div className="search-results-grid">
-              {searchResults.data.map((game) => (
+              {paginatedGameResults.map((game) => (
                 <Link to={`/game/${game.id}`} className="game-card" key={game.id}>
-                  <img src={game.background_image} alt={game.name} />
+                  <img src={game.background_image || logo} alt={game.name} />
                   <h3>{game.name}</h3>
                   <p>Released: {game.released}</p>
                 </Link>
               ))}
+            </div>
+            {/* Pagination Controls */}
+            <div className="pagination">
+              {currentPage > 1 && (
+                <button onClick={() => setCurrentPage(currentPage - 1)}>
+                  Previous Page
+                </button>
+              )}
+              {currentPage * 6 < searchResults.data.length && (
+                <button onClick={() => setCurrentPage(currentPage + 1)}>
+                  Next Page
+                </button>
+              )}
             </div>
           </>
         ) : (

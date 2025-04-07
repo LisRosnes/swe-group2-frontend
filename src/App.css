@@ -32,11 +32,16 @@
 }
 
 .search-results-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  justify-content: center;
   margin-top: 20px;
+  margin-left: 180px;
+}
+
+.pagination {
+  margin-top: 30px;
+  text-align: center;
 }
 
 
