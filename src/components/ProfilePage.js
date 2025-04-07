@@ -43,13 +43,13 @@ const ProfilePage = () => {
         ],
         gameTeams: [
             {
-                id: 1,
+                id: 'team-1',
                 name: 'Team Alpha',
                 description: 'A team of elite gamers.',
                 members: ['John', 'Jane', 'Doe']
             },
             {
-                id: 2,
+                id: 'team-2',
                 name: 'Team Beta',
                 description: 'Casual gamers united.',
                 members: ['Alice', 'Bob']
@@ -211,11 +211,12 @@ const ProfilePage = () => {
     <h2>My Teams</h2>
     <div className="team-container">
         {profile.gameTeams.map((team) => (
-            <div key={team.id} className="team-card">
+            <button key={team.id} className="team-card"
+            onClick={() => navigate(`/team/${team.id}`)}>
                 <h3>{team.name}</h3>
                 <p><strong>Description:</strong> {team.description}</p>
                 <p><strong>Members:</strong> {team.members.join(', ')}</p>
-            </div>
+            </button>
         ))}
     </div>
 </div>
