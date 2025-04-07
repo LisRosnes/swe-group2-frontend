@@ -30,21 +30,47 @@ function Login() {
 
     try {
       setLoading(true);
-      setTimeout(() => {
-        console.log('Login successful:', formData);
-        localStorage.setItem('authToken', 'demo-token-123');
-        localStorage.setItem('userId', '1');
-        localStorage.setItem('username', formData.username);
-        navigate('/');
-        setLoading(false);
-      }, 1000);
+
+      const response = await fetch('http://100.90.135.56:8080/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include'
+        },
+        body: JSON.stringify(formData)
+      });
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      const token = await response.text();
+      localStorage.setItem('authToken', response.body);
+
+
+      const profileResponse = await fetch('http://100.90.135.56:8080/user/me', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'credentials': 'include'
+        },
+      });
+      if (!profileResponse.ok) {
+        throw new Error('Fetching profile failed');
+      }
+      const userData = await profileResponse.json();
+
+      // Save only the necessary user data (avoid storing the password!)
+      const { id, username, email } = userData;
+      localStorage.setItem('user', JSON.stringify({ id, username, email }));
+      console.log('Login successful:', userData);
+
+      navigate('/');
       
-      
-    } catch (err) {
-      console.error('Login error:', err);
+    } catch (error) {
+      console.error('Login error:', error);
       setError('Login failed. Please check your connection and try again.');
     } finally {
-
+      setLoading(false);
     }
   };
 

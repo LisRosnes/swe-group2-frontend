@@ -5,15 +5,14 @@ import './Register.css';
 function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
     username: '',
     password: '',
-    confirmPassword: '', 
     email: ''
   });
   const [error, setError] = useState(''); 
   const [loading, setLoading] = useState(false);
+  const registerEndpoint = 'http://100.90.135.56:8080/user/register';
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,32 +26,36 @@ function Register() {
     e.preventDefault();
     setError('');
     
-    if (!formData.firstname || !formData.lastname || !formData.username ||
-        !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.username ||!formData.email || !formData.password) {
       setError('Please fill in all fields');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
       return;
     }
 
     try {
       setLoading(true);
 
-      setTimeout(() => {
-        console.log('Successful registration:', formData);
-        navigate('/login');
-        setLoading(false);
-      }, 1000);
+      const response = await fetch(registerEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          email: formData.email
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
+      navigate('/login');
 
-      
     } catch (err) {
       console.error('Registration error:', err);
       setError('Registration failed. Please check your connection and try again.');
     } finally {
+      setLoading(false);
     }
   };
 
@@ -63,7 +66,7 @@ function Register() {
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="firstname">First Name</label>
             <input
               type="text"
@@ -85,7 +88,7 @@ function Register() {
               onChange={handleChange}
               placeholder="Enter your last name"
             />
-          </div>
+          </div> */}
           
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -123,7 +126,7 @@ function Register() {
             />
           </div>
           
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               type="password"
@@ -133,7 +136,7 @@ function Register() {
               onChange={handleChange}
               placeholder="Confirm your password"
             />
-          </div>
+          </div> */}
           
           <button 
             type="submit" 
