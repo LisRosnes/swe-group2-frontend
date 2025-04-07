@@ -31,7 +31,7 @@ function Login() {
     try {
       setLoading(true);
 
-      const response = await fetch('http://100.90.135.56:8080/user/login', {
+      const response = await fetch('http://10.44.157.76:8080/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,10 +43,10 @@ function Login() {
         throw new Error('Login failed');
       }
       const token = await response.text();
-      localStorage.setItem('authToken', response.body);
+      localStorage.setItem('authToken', token);
 
 
-      const profileResponse = await fetch('http://100.90.135.56:8080/user/me', {
+      const profileResponse = await fetch('http://10.44.157.76:8080/user/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -8,7 +8,7 @@ const GameInfo = () => {
   const [requesting, setRequesting] = useState(false);
 
   const [game, setGame] = useState({
-    id: '',
+    id: 0,
     name: '',
     genre: '',
     platform: '',
@@ -17,12 +17,10 @@ const GameInfo = () => {
     score: '',
   });
 
-  const [comments, setComments] = useState([
-    { user: 'PlayerOne', text: 'Loved this game! So immersive.' },
-    { user: 'GamerGirl99', text: 'Combat system could be better.' },
-  ]);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
 
+  // Fetch game info from RAWG API
   useEffect(() => {
     const fetchGameData = async () => {
       setRequesting(true);
@@ -38,7 +36,7 @@ const GameInfo = () => {
           platform: data.platforms.map(p => p.platform.name).join(', '),
           image: data.background_image,
           review: data.description_raw,
-          score:  data.metacritic,
+          score: data.metacritic,
         });
       } catch (error) {
         console.error('Failed to fetch game:', error);
@@ -49,6 +47,79 @@ const GameInfo = () => {
 
     fetchGameData();
   }, [gameId]);
+
+
+  // Fetch comments from backend
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        console.log('Auth Token:', token); // 🔍 Debugging: Print the token
+  
+        if (!token) {
+          console.warn('No auth token found, skipping comment fetch');
+          return;
+        }
+  
+        const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'credentials': 'include',
+          },
+        });
+  
+        if (!response.ok) throw new Error('Failed to fetch comments');
+  
+        const data = await response.json();
+        const formatted = data.map(comment => ({
+          user: `User${comment.userId}`,
+          text: comment.content
+        }));
+        setComments(formatted);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+  
+    fetchComments();
+  }, [game.id]);
+  
+  
+
+  // Post new comment to backend
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+  
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('You must be logged in to post a comment');
+        return;
+      }
+  
+      const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'credentials': 'include',
+        },
+        body: JSON.stringify({
+          content: newComment
+        }),
+      });
+  
+      if (!response.ok) throw new Error('Failed to post comment');
+  
+      setComments([...comments, { user: 'You', text: newComment }]);
+      setNewComment('');
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  };  
 
   const handleBackToHome = () => {
     navigate('/');
@@ -62,15 +133,6 @@ const GameInfo = () => {
       return;
     }
     navigate('/build-team');
-  };
-
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (newComment.trim()) {
-      const dummyUser = `User${Math.floor(Math.random() * 1000)}`;
-      setComments([...comments, { user: dummyUser, text: newComment }]);
-      setNewComment('');
-    }
   };
 
   return (
@@ -126,7 +188,6 @@ const GameInfo = () => {
               <span className="numeric-score">{game.score ? game.score : 'N/A'}</span>
             </div>
           </div>
-
         </div>
       )}
 
