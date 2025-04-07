@@ -194,7 +194,7 @@ function App() {
           {isLoggedIn ? (
             <>
               <button onClick={handleProfileClick} className="profile-btn">
-                {username}'s Profile
+                {username} Profile
               </button>
               <button onClick={handleLogoutClick} className="logout-btn">Logout</button>
             </>
