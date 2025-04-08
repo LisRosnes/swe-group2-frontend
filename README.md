@@ -1,6 +1,13 @@
 # Game Website Frontend
 Our web application provides a comprehensive platform for gamers to search, view, and interact with game information and build teams for multiplayer games.
 
+## 5 Tasks for sprint 4
+1. Enhance the visual layout of the home page (or any other page)
+2. Add user interaction feature (like or dislike another user's comment about a game)
+3. Connecting backend of the team info feature to the front end. 
+4. Add peer teammate grading feature
+5. Build user avatar feature
+
 ## Getting Started
 
 1. Navigate to the project directory:
@@ -18,8 +25,8 @@ Our web application provides a comprehensive platform for gamers to search, view
    npm start
    ```
 
-4. Register and log in:  
-   This feature is not yet connected to the backend, so you can use any placeholder credentials to log in.
+4. Register and log in:
+   If this page is not working, you may need to change the port on the Login and Register page to connect properly to the backend..
 
 5. You can now browse all the available pages.
 
@@ -61,6 +68,7 @@ Accessible via the Build Team button:
 - Features tools for team customization and management
 
 ### Profile Page
+*not currently connected to backend, just uses dummy data*
 When users click the Profile button:
 - Shows user's personal information
 - Displays history of user's comments and activities
