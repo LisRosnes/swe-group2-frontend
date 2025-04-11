@@ -6,6 +6,7 @@ const GameInfo = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
   const [requesting, setRequesting] = useState(false);
+  const [votingInProgress, setVotingInProgress] = useState(false);
 
   const [game, setGame] = useState({
     id: 0,
@@ -73,11 +74,7 @@ const GameInfo = () => {
         if (!response.ok) throw new Error('Failed to fetch comments');
   
         const data = await response.json();
-        const formatted = data.map(comment => ({
-          user: `User${comment.userId}`,
-          text: comment.content
-        }));
-        setComments(formatted);
+        setComments(data);
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
@@ -86,8 +83,6 @@ const GameInfo = () => {
     fetchComments();
   }, [game.id]);
   
-  
-
   // Post new comment to backend
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -114,12 +109,65 @@ const GameInfo = () => {
   
       if (!response.ok) throw new Error('Failed to post comment');
   
-      setComments([...comments, { user: 'You', text: newComment }]);
+      // Refresh comments after posting
       setNewComment('');
+      
+      // Fetch comments again to update the list
+      const commentsResponse = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'credentials': 'include',
+        },
+      });
+      
+      if (commentsResponse.ok) {
+        const data = await commentsResponse.json();
+        setComments(data);
+      }
     } catch (error) {
       console.error('Error posting comment:', error);
     }
   };  
+
+  // Handle vote on a comment
+  const handleVote = async (commentId, isLike) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('You must be logged in to vote on comments');
+        return;
+      }
+      
+      setVotingInProgress(true);
+      
+      const response = await fetch(`http://10.44.157.76:8080/game_info/comments/${commentId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'credentials': 'include',
+        },
+        body: JSON.stringify({
+          isLike: isLike
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to vote on comment');
+      
+      const updatedComment = await response.json();
+      
+      // Update the comments array with the updated comment
+      setComments(comments.map(comment => 
+        comment.id === commentId ? updatedComment : comment
+      ));
+    } catch (error) {
+      console.error('Error voting on comment:', error);
+    } finally {
+      setVotingInProgress(false);
+    }
+  };
 
   const handleBackToHome = () => {
     navigate('/');
@@ -133,6 +181,19 @@ const GameInfo = () => {
       return;
     }
     navigate('/build-team');
+  };
+
+  // Helper function to determine vote button styles
+  const getVoteButtonStyle = (comment, isLikeButton) => {
+    if (!comment.userVoteStatus) return "";
+    
+    if (isLikeButton && comment.userVoteStatus === "LIKE") {
+      return "vote-button-active";
+    } else if (!isLikeButton && comment.userVoteStatus === "DISLIKE") {
+      return "vote-button-active";
+    }
+    
+    return "";
   };
 
   return (
@@ -194,9 +255,33 @@ const GameInfo = () => {
       <div className="comment-section">
         <h2>Comments</h2>
         <ul className="comment-list">
-          {comments.map((comment, index) => (
-            <li key={index}>
-              <strong>{comment.user}:</strong> {comment.text}
+          {comments.map((comment) => (
+            <li key={comment.id} className="comment-item">
+              <div className="comment-content">
+                <strong>User {comment.userId}:</strong> {comment.content}
+              </div>
+              
+              <div className="comment-actions">
+                <div className="vote-buttons">
+                  <button 
+                    className={`vote-button like-button ${getVoteButtonStyle(comment, true)}`}
+                    onClick={() => handleVote(comment.id, true)}
+                    disabled={votingInProgress}
+                  >
+                    <span role="img" aria-label="thumbs up">👍</span> 
+                    <span className="vote-count">{comment.likeCount || 0}</span>
+                  </button>
+                  
+                  <button 
+                    className={`vote-button dislike-button ${getVoteButtonStyle(comment, false)}`}
+                    onClick={() => handleVote(comment.id, false)}
+                    disabled={votingInProgress}
+                  >
+                    <span role="img" aria-label="thumbs down">👎</span>
+                    <span className="vote-count">{comment.dislikeCount || 0}</span>
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

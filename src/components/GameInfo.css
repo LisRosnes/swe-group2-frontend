@@ -127,19 +127,73 @@ html, body {
   padding-left: 0;
 }
 
-.comment-list li {
-  padding: 10px 14px;
+/* Comment item styling */
+.comment-item {
+  padding: 14px;
   background-color: #2a2a2a;
   border-radius: 6px;
-  font-size: 15px;
-  color: #cccccc; /* lighter gray for comment text */
   list-style: none;
 }
 
-.comment-list li strong {
-  color: #aaaaaa; /* slightly darker than content text */
+.comment-content {
+  font-size: 15px;
+  color: #cccccc;
+  margin-bottom: 10px;
+}
+
+.comment-content strong {
+  color: #aaaaaa;
   font-weight: 600;
   margin-right: 6px;
+}
+
+/* Comment actions container */
+.comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* Vote buttons container */
+.vote-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* Vote button base style */
+.vote-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: transparent;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #aaa;
+}
+
+.vote-button:hover {
+  background-color: #333;
+}
+
+.vote-button-active.like-button {
+  background-color: #1a531a;
+  border-color: #2e7d32;
+  color: #4caf50;
+}
+
+.vote-button-active.dislike-button {
+  background-color: #531a1a;
+  border-color: #7d2e2e;
+  color: #f44336;
+}
+
+.vote-count {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* Comment form */
