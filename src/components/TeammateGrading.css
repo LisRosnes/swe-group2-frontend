@@ -1,0 +1,67 @@
+.grading-container {
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+}
+
+.teammate-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.teammate-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.star {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.2s;
+    padding: 0 0.2rem;
+}
+
+.star.active {
+    color: #ffd700;
+}
+
+.star:hover:not(.disabled) {
+    color: #ffeb3b;
+}
+
+.submit-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+.confirmation-message {
+    color: #4CAF50;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
