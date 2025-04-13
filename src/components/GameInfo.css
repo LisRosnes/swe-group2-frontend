@@ -127,73 +127,75 @@ html, body {
   padding-left: 0;
 }
 
-/* Comment item styling */
-.comment-item {
-  padding: 14px;
+.comment-list li {
+  padding: 10px 14px;
   background-color: #2a2a2a;
   border-radius: 6px;
+  font-size: 15px;
+  color: #cccccc; /* lighter gray for comment text */
   list-style: none;
 }
 
-.comment-content {
-  font-size: 15px;
-  color: #cccccc;
-  margin-bottom: 10px;
-}
-
-.comment-content strong {
-  color: #aaaaaa;
+.comment-list li strong {
+  color: #aaaaaa; /* slightly darker than content text */
   font-weight: 600;
   margin-right: 6px;
 }
 
-/* Comment actions container */
+/* Comment item styling */
+.comment-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-content {
+  flex-grow: 1;
+}
+
 .comment-actions {
   display: flex;
-  justify-content: flex-end;
+  gap: 10px;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
-/* Vote buttons container */
-.vote-buttons {
-  display: flex;
-  gap: 12px;
-}
-
-/* Vote button base style */
-.vote-button {
+/* Like and dislike buttons */
+.like-button, .dislike-button {
+  background-color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 5px;
-  background-color: transparent;
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
   transition: all 0.2s ease;
-  color: #aaa;
 }
 
-.vote-button:hover {
-  background-color: #333;
+.like-button:hover {
+  background-color: #1a4d2e;
 }
 
-.vote-button-active.like-button {
-  background-color: #1a531a;
-  border-color: #2e7d32;
-  color: #4caf50;
+.dislike-button:hover {
+  background-color: #4d1a1a;
 }
 
-.vote-button-active.dislike-button {
-  background-color: #531a1a;
-  border-color: #7d2e2e;
-  color: #f44336;
+.like-button.active {
+  background-color: #1e6b3c;
+  color: #fff;
 }
 
-.vote-count {
-  font-size: 14px;
+.dislike-button.active {
+  background-color: #6b1e1e;
+  color: #fff;
+}
+
+.like-count, .dislike-count {
   font-weight: 600;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* Comment form */

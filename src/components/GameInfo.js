@@ -6,7 +6,6 @@ const GameInfo = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
   const [requesting, setRequesting] = useState(false);
-  const [votingInProgress, setVotingInProgress] = useState(false);
 
   const [game, setGame] = useState({
     id: 0,
@@ -20,6 +19,7 @@ const GameInfo = () => {
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const [userInteractions, setUserInteractions] = useState({});
 
   // Fetch game info from RAWG API
   useEffect(() => {
@@ -62,7 +62,7 @@ const GameInfo = () => {
           return;
         }
   
-        const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+        const response = await fetch(`http://localhost:8080/game_info/${game.id}/comments`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -74,7 +74,21 @@ const GameInfo = () => {
         if (!response.ok) throw new Error('Failed to fetch comments');
   
         const data = await response.json();
-        setComments(data);
+        const formatted = data.map(comment => ({
+          id: comment.id,
+          user: `User${comment.userId}`,
+          text: comment.content,
+          likes: comment.likes || 0,
+          dislikes: comment.dislikes || 0
+        }));
+        setComments(formatted);
+        
+        // Initialize user interactions object
+        const interactions = {};
+        formatted.forEach(comment => {
+          interactions[comment.id] = { liked: false, disliked: false };
+        });
+        setUserInteractions(interactions);
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
@@ -95,7 +109,7 @@ const GameInfo = () => {
         return;
       }
   
-      const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+      const response = await fetch(`http://localhost:8080/game_info/${game.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,63 +123,178 @@ const GameInfo = () => {
   
       if (!response.ok) throw new Error('Failed to post comment');
   
-      // Refresh comments after posting
-      setNewComment('');
+      // Add new comment with initial 0 likes and dislikes
+      const newCommentObj = { 
+        id: Date.now(), // Temporary ID until we get the real one
+        user: 'You', 
+        text: newComment,
+        likes: 0,
+        dislikes: 0
+      };
       
-      // Fetch comments again to update the list
-      const commentsResponse = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'credentials': 'include',
-        },
+      setComments([...comments, newCommentObj]);
+      
+      // Initialize interaction state for the new comment
+      setUserInteractions({
+        ...userInteractions,
+        [newCommentObj.id]: { liked: false, disliked: false }
       });
       
-      if (commentsResponse.ok) {
-        const data = await commentsResponse.json();
-        setComments(data);
-      }
+      setNewComment('');
     } catch (error) {
       console.error('Error posting comment:', error);
     }
-  };  
-
-  // Handle vote on a comment
-  const handleVote = async (commentId, isLike) => {
+  };
+  
+  // Handle like click
+  const handleLike = async (commentId) => {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        alert('You must be logged in to vote on comments');
+        alert('You must be logged in to like comments');
         return;
       }
       
-      setVotingInProgress(true);
+      const interaction = userInteractions[commentId];
+      let endpoint;
       
-      const response = await fetch(`http://10.44.157.76:8080/game_info/comments/${commentId}/vote`, {
+      if (interaction.liked) {
+        // If already liked, unlike it
+        endpoint = `http://localhost:8080/game_info/comments/${commentId}/unlike`;
+      } else {
+        // If not liked, like it
+        endpoint = `http://localhost:8080/game_info/comments/${commentId}/like`;
+        
+        // If it was disliked, also remove the dislike
+        if (interaction.disliked) {
+          await fetch(`http://localhost:8080/game_info/comments/${commentId}/undislike`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'credentials': 'include',
+            }
+          });
+        }
+      }
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'credentials': 'include',
-        },
-        body: JSON.stringify({
-          isLike: isLike
-        }),
+        }
       });
       
-      if (!response.ok) throw new Error('Failed to vote on comment');
+      if (!response.ok) throw new Error('Failed to update like');
       
-      const updatedComment = await response.json();
+      // Update comments state
+      setComments(comments.map(comment => {
+        if (comment.id === commentId) {
+          if (interaction.liked) {
+            // Unliking
+            return { ...comment, likes: Math.max(0, comment.likes - 1) };
+          } else {
+            // Liking
+            return { 
+              ...comment, 
+              likes: comment.likes + 1,
+              // If it was disliked, also decrease the dislikes
+              dislikes: interaction.disliked ? Math.max(0, comment.dislikes - 1) : comment.dislikes
+            };
+          }
+        }
+        return comment;
+      }));
       
-      // Update the comments array with the updated comment
-      setComments(comments.map(comment => 
-        comment.id === commentId ? updatedComment : comment
-      ));
+      // Update interaction state
+      setUserInteractions({
+        ...userInteractions,
+        [commentId]: { 
+          liked: !interaction.liked, 
+          disliked: interaction.disliked && !interaction.liked ? false : interaction.disliked 
+        }
+      });
+      
     } catch (error) {
-      console.error('Error voting on comment:', error);
-    } finally {
-      setVotingInProgress(false);
+      console.error('Error updating like:', error);
+    }
+  };
+  
+  // Handle dislike click
+  const handleDislike = async (commentId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('You must be logged in to dislike comments');
+        return;
+      }
+      
+      const interaction = userInteractions[commentId];
+      let endpoint;
+      
+      if (interaction.disliked) {
+        // If already disliked, undislike it
+        endpoint = `http://localhost:8080/game_info/comments/${commentId}/undislike`;
+      } else {
+        // If not disliked, dislike it
+        endpoint = `http://localhost:8080/game_info/comments/${commentId}/dislike`;
+        
+        // If it was liked, also remove the like
+        if (interaction.liked) {
+          await fetch(`http://localhost:8080/game_info/comments/${commentId}/unlike`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'credentials': 'include',
+            }
+          });
+        }
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'credentials': 'include',
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to update dislike');
+      
+      // Update comments state
+      setComments(comments.map(comment => {
+        if (comment.id === commentId) {
+          if (interaction.disliked) {
+            // Undisliking
+            return { ...comment, dislikes: Math.max(0, comment.dislikes - 1) };
+          } else {
+            // Disliking
+            return { 
+              ...comment, 
+              dislikes: comment.dislikes + 1,
+              // If it was liked, also decrease the likes
+              likes: interaction.liked ? Math.max(0, comment.likes - 1) : comment.likes
+            };
+          }
+        }
+        return comment;
+      }));
+      
+      // Update interaction state
+      setUserInteractions({
+        ...userInteractions,
+        [commentId]: { 
+          disliked: !interaction.disliked, 
+          liked: interaction.liked && !interaction.disliked ? false : interaction.liked 
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error updating dislike:', error);
     }
   };
 
@@ -181,19 +310,6 @@ const GameInfo = () => {
       return;
     }
     navigate('/build-team');
-  };
-
-  // Helper function to determine vote button styles
-  const getVoteButtonStyle = (comment, isLikeButton) => {
-    if (!comment.userVoteStatus) return "";
-    
-    if (isLikeButton && comment.userVoteStatus === "LIKE") {
-      return "vote-button-active";
-    } else if (!isLikeButton && comment.userVoteStatus === "DISLIKE") {
-      return "vote-button-active";
-    }
-    
-    return "";
   };
 
   return (
@@ -258,29 +374,21 @@ const GameInfo = () => {
           {comments.map((comment) => (
             <li key={comment.id} className="comment-item">
               <div className="comment-content">
-                <strong>User {comment.userId}:</strong> {comment.content}
+                <strong>{comment.user}:</strong> {comment.text}
               </div>
-              
               <div className="comment-actions">
-                <div className="vote-buttons">
-                  <button 
-                    className={`vote-button like-button ${getVoteButtonStyle(comment, true)}`}
-                    onClick={() => handleVote(comment.id, true)}
-                    disabled={votingInProgress}
-                  >
-                    <span role="img" aria-label="thumbs up">👍</span> 
-                    <span className="vote-count">{comment.likeCount || 0}</span>
-                  </button>
-                  
-                  <button 
-                    className={`vote-button dislike-button ${getVoteButtonStyle(comment, false)}`}
-                    onClick={() => handleVote(comment.id, false)}
-                    disabled={votingInProgress}
-                  >
-                    <span role="img" aria-label="thumbs down">👎</span>
-                    <span className="vote-count">{comment.dislikeCount || 0}</span>
-                  </button>
-                </div>
+                <button 
+                  className={`like-button ${userInteractions[comment.id]?.liked ? 'active' : ''}`}
+                  onClick={() => handleLike(comment.id)}
+                >
+                  👍 <span className="like-count">{comment.likes}</span>
+                </button>
+                <button 
+                  className={`dislike-button ${userInteractions[comment.id]?.disliked ? 'active' : ''}`}
+                  onClick={() => handleDislike(comment.id)}
+                >
+                  👎 <span className="dislike-count">{comment.dislikes}</span>
+                </button>
               </div>
             </li>
           ))}
