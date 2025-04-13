@@ -3,7 +3,9 @@ import './App.css';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './logo.svg';
 
+
 const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
+
 
 function App() {
   const [searchType, setSearchType] = useState('game');
