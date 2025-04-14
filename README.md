@@ -4,7 +4,7 @@ Our web application provides a comprehensive platform for gamers to search, view
 ## 5 Tasks for sprint 4
 1. Enhance the visual layout of the home page (or any other page)
 2. Add user interaction feature (like or dislike another user's comment about a game)
-3. Connecting backend of the team info feature to the front end. 
+3. Add join team request feature. 
 4. Add peer teammate grading feature
 5. Build user avatar feature
 
