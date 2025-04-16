@@ -11,7 +11,7 @@ function Register() {
   });
   const [error, setError] = useState(''); 
   const [loading, setLoading] = useState(false);
-  const registerEndpoint = 'http://10.44.223.4:8080/user/register';
+  const registerEndpoint = 'http://10.0.0.124:8080/user/register';
 
 
   const handleChange = (e) => {

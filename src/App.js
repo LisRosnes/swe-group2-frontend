@@ -31,7 +31,7 @@ function App() {
 
   useEffect(() => {
     const randomPage = Math.floor(Math.random() * 100) + 1;
-    fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=${randomPage}&page_size=3`)
+    fetch(`https://api.rawg.io/api/games?key=${'ced2c85ef5a8429bbc4fd10534933f41'}&page=${randomPage}&page_size=3`)
       .then((res) => res.json())
       .then((data) => {
         if (data.results) {
@@ -45,76 +45,124 @@ function App() {
     setSearchValue(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  // const handleSearchSubmit = () => {
+  //   if (searchType === 'game') {
+  //     // Using rawg API for game search with top 12 matches
+  //     fetch(`https://api.rawg.io/api/games?key=${'ced2c85ef5a8429bbc4fd10534933f41'}&search=${encodeURIComponent(searchValue)}&page_size=12`)
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         if (data.results) {
+  //           setSearchResults({ type: 'game', data: data.results });
+  //           setCurrentPage(1); // Reset page to 1 for new search
+  //         }
+  //       })
+  //       .catch((err) => console.error('Error searching games:', err));
+  //     setTeamSearchMessage('');
+  //   } else if (searchType === 'team') {
+  //     // Dummy team search
+  //     const lowerSearch = searchValue.toLowerCase();
+  //     let dummyTeamMatches = [];
+  //     if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
+  //       dummyTeamMatches = [
+  //         {
+  //           id: 'team-1',
+  //           game: 'Brutal Legend',
+  //           name: 'Alpha Squad',
+  //           members: ['Alice', 'Bob', 'Charlie'],
+  //           background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+  //         },
+  //         {
+  //           id: 'team-2',
+  //           game: 'Outlast',
+  //           name: 'Survivors',
+  //           members: ['Dave', 'Eve'],
+  //           background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+  //         },
+  //       ];
+  //     }
+  //     if (dummyTeamMatches.length > 0) {
+  //       setSearchResults({ type: 'team', data: dummyTeamMatches });
+  //       setTeamSearchMessage('');
+  //     } else {
+  //       // No matching teams found then show message and recommended teams
+  //       const recommendedTeams = [
+  //         {
+  //           id: 'team-1',
+  //           game: 'Brutal Legend',
+  //           name: 'Alpha Squad',
+  //           members: ['Alice', 'Bob', 'Charlie'],
+  //           background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+  //         },
+  //         {
+  //           id: 'team-2',
+  //           game: 'Outlast',
+  //           name: 'Survivors',
+  //           members: ['Dave', 'Eve'],
+  //           background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
+  //         },
+  //         {
+  //           id: 'team-3',
+  //           game: 'Quake Champions',
+  //           name: 'Champions United',
+  //           members: ['Frank', 'Grace', 'Heidi'],
+  //           background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
+  //         },
+  //       ];
+  //       setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
+  //       setSearchResults({ type: 'team', data: recommendedTeams });
+  //     }
+  //   }
+  //   console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
+  // };
+
+  const handleSearchSubmit = async () => {
+    // If user selects "game" (unchanged)
     if (searchType === 'game') {
-      // Using rawg API for game search with top 12 matches
-      fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(searchValue)}&page_size=12`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.results) {
-            setSearchResults({ type: 'game', data: data.results });
-            setCurrentPage(1); // Reset page to 1 for new search
-          }
-        })
-        .catch((err) => console.error('Error searching games:', err));
-      setTeamSearchMessage('');
-    } else if (searchType === 'team') {
-      // Dummy team search
-      const lowerSearch = searchValue.toLowerCase();
-      let dummyTeamMatches = [];
-      if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
-        dummyTeamMatches = [
-          {
-            id: 'team-1',
-            game: 'Brutal Legend',
-            name: 'Alpha Squad',
-            members: ['Alice', 'Bob', 'Charlie'],
-            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
-          },
-          {
-            id: 'team-2',
-            game: 'Outlast',
-            name: 'Survivors',
-            members: ['Dave', 'Eve'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
-          },
-        ];
-      }
-      if (dummyTeamMatches.length > 0) {
-        setSearchResults({ type: 'team', data: dummyTeamMatches });
+      try {
+        const res = await fetch(`https://api.rawg.io/api/games?key=${'ced2c85ef5a8429bbc4fd10534933f41'}&search=${encodeURIComponent(searchValue)}&page_size=12`);
+        const data = await res.json();
+        if (data.results) {
+          setSearchResults({ type: 'game', data: data.results });
+          setCurrentPage(1);
+        }
         setTeamSearchMessage('');
-      } else {
-        // No matching teams found then show message and recommended teams
-        const recommendedTeams = [
-          {
-            id: 'team-1',
-            game: 'Brutal Legend',
-            name: 'Alpha Squad',
-            members: ['Alice', 'Bob', 'Charlie'],
-            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
-          },
-          {
-            id: 'team-2',
-            game: 'Outlast',
-            name: 'Survivors',
-            members: ['Dave', 'Eve'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
-          },
-          {
-            id: 'team-3',
-            game: 'Quake Champions',
-            name: 'Champions United',
-            members: ['Frank', 'Grace', 'Heidi'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
-          },
-        ];
-        setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
-        setSearchResults({ type: 'team', data: recommendedTeams });
+      } catch (err) {
+        console.error('Error searching games:', err);
+      }
+  
+    // If user selects "team" — ignore the user’s input and just get ALL teams
+    } else if (searchType === 'team') {
+      try {
+        const response = await fetch('http://10.0.0.124:8080/teams/all');
+        if (!response.ok) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
+        const dbTeams = await response.json();
+        console.log('Fetched all DB Teams:', dbTeams);
+  
+        // Format them to match your UI cards
+        const formattedDbTeams = dbTeams.map(t => ({
+          id: t.team.id,
+          game: t.team.teamName || 'Unknown Game', // or t.team.gameName if your DB is storing actual game name
+          // or name: t.team.teamName
+          members: t.members.map(u => u.username), // convert array of user objects to array of usernames
+          background_image: t.team.gameImage || logo
+        }));
+        
+  
+        // Show them in your existing grid
+        setSearchResults({ type: 'team', data: formattedDbTeams });
+        setTeamSearchMessage('');
+  
+      } catch (err) {
+        console.error('Error fetching all teams:', err);
+        setTeamSearchMessage('Failed to load team data.');
       }
     }
+  
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
   };
-
+  
   const handleGameInfoClick = () => {
     navigate('/game/the-witcher-3-wild-hunt');
   };

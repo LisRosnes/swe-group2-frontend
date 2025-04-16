@@ -3,93 +3,79 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './TeamInfo.css';
 
 const TeamInfo = () => {
-  const { teamId } = useParams();
+  const { teamId } = useParams();        // <‑‑ comes from `/team/:id`
   const navigate = useNavigate();
-  const [requesting, setRequesting] = useState(false);
-  const [team, setTeam] = useState({
-    id: 'team-1',
-    name: 'Alpha Squad',
-    gameName: 'Brutal Legend',
-    teamSize: 3,
-    time: 'Weekends, 8:00 PM - 11:00 PM',
-    description: 'Casual team looking for players to climb ranked. All skill levels welcome!',
-    members: [
-      {
-        name: 'Alice',
-        avatar: 'https://ui-avatars.com/api/?name=Alice&background=4a90e2&color=fff&size=100'
-      },
-      {
-        name: 'Bob',
-        avatar: 'https://ui-avatars.com/api/?name=Bob&background=e24a4a&color=fff&size=100'
-      },
-      {
-        name: 'Charlie',
-        avatar: 'https://ui-avatars.com/api/?name=Charlie&background=4ae24a&color=fff&size=100'
-      }
-    ],
-    host: 'Alice'
-  });
 
+  const [loading, setLoading] = useState(true);
+  const [team, setTeam]   = useState(null);   // ⇐ start empty
+  const [requesting, setRequesting] = useState(false);
+
+  /** fetch the real team */
   useEffect(() => {
-    console.log(`Fetching data for team ID: ${teamId}`);
-    const timer = setTimeout(() => {
-      console.log('Team data loaded');
-    }, 500);
-    return () => clearTimeout(timer);
+    const fetchTeam = async () => {
+      setLoading(true);
+      try {
+        // endpoint we added in TeamController
+        const res = await fetch(`http://10.0.0.124:8080/teams/${teamId}`);
+        if (!res.ok) throw new Error('Failed to load team');
+        const { team: t, members } = await res.json();
+
+        setTeam({
+          id:         t.id,
+          gameName:   t.teamName ?? 'Unknown Game',   // change if you store real game name separately
+          teamSize:   t.teamSize,
+          time:       `${t.fromTime ?? ''} – ${t.toTime ?? ''}`,
+          description:t.description,
+          members:    members.map(u => ({
+                        name: u.username,
+                        // quick avatar
+                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username)}`
+                      })),
+          host: members.find(u => u.id === t.creatorId)?.username ?? ''
+        });
+      } catch (err) {
+        console.error(err);
+        alert('Could not load team information');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeam();
   }, [teamId]);
 
-  const handleRequestJoin = () => {
-    setRequesting(true);
-    setTimeout(() => {
-      alert('Join request sent successfully!');
-      setRequesting(false);
-    }, 1000);
-  };
+  /* ––––– UI ––––– */
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
+  if (loading || !team) return <p className="team-info-container">Loading…</p>;
 
   return (
     <div className="team-info-container">
       <div className="team-info-header">
-        <button className="back-button" onClick={handleBackToHome}>Home</button>
-        <h1>Team Info Page</h1>
+        <button className="back-button" onClick={() => navigate('/')}>Home</button>
+        <h1>Team Info</h1>
       </div>
+
       <div className="team-info-card">
+        <div className="team-info-field"><label>Game Name:</label><span>{team.gameName}</span></div>
+        <div className="team-info-field"><label>Team Size:</label><span>{team.teamSize} Members</span></div>
+        <div className="team-info-field"><label>Time:</label><span>{team.time}</span></div>
+        <div className="team-info-field"><label>Description:</label><p>{team.description}</p></div>
+
         <div className="team-info-field">
-          <label>Game Name:</label>
-          <span>{team.gameName}</span>
-        </div>
-        <div className="team-info-field">
-          <label>Team Size:</label>
-          <span>{team.teamSize} Members</span>
-        </div>
-        <div className="team-info-field">
-          <label>Time:</label>
-          <span>{team.time}</span>
-        </div>
-        <div className="team-info-field">
-          <label>Description:</label>
-          <p>{team.description}</p>
-        </div>
-        <div className="team-info-field">
-          <label>Current team Members:</label>
+          <label>Current Members:</label>
           <div className="team-members-list">
-            {team.members.map((member, index) => (
-              <div key={index} className="team-member">
-                <img src={member.avatar} alt={member.name} className="member-avatar" />
-                <span>{member.name}{member.name === team.host ? ' (Host)' : ''}</span>
+            {team.members.map((m,i) => (
+              <div key={i} className="team-member">
+                <img src={m.avatar} alt={m.name} className="member-avatar" />
+                <span>{m.name}{m.name === team.host && ' (Host)'}</span>
               </div>
             ))}
           </div>
         </div>
-        <button
-          className="request-join-button"
-          onClick={handleRequestJoin}
-          disabled={requesting}
-        >
-          {requesting ? 'Sending Request...' : 'Request to join'}
+
+        <button className="request-join-button"
+                onClick={() => { setRequesting(true); /* TODO: POST /teams/join */ }}
+                disabled={requesting}>
+          {requesting ? 'Sending…' : 'Request to join'}
         </button>
       </div>
     </div>
