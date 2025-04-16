@@ -26,7 +26,7 @@ const GameInfo = () => {
       setRequesting(true);
       try {
         const response = await fetch(
-          `https://api.rawg.io/api/games/${gameId}?key=${process.env.REACT_APP_RAWG_API_KEY}`
+          `https://api.rawg.io/api/games/${gameId}?key=${'ced2c85ef5a8429bbc4fd10534933f41'}`
         );
         const data = await response.json();
         setGame({
@@ -61,7 +61,7 @@ const GameInfo = () => {
           return;
         }
   
-        const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+        const response = await fetch(`http://10.0.0.124:8080/game_info/${game.id}/comments`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const GameInfo = () => {
         return;
       }
   
-      const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+      const response = await fetch(`http://10.0.0.124:8080/game_info/${game.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

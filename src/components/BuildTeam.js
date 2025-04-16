@@ -29,7 +29,7 @@ const BuildTeam = () => {
           return;
         }
         const response = await fetch(
-          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=1&page_size=20`
+          `https://api.rawg.io/api/games?key=${'ced2c85ef5a8429bbc4fd10534933f41'}&page=1&page_size=20`
         );
         if (!response.ok) throw new Error('Failed to fetch games');
         const data = await response.json();
@@ -129,7 +129,7 @@ const BuildTeam = () => {
         }
       };
       try {
-        const response = await fetch('http://10.44.223.4:8080/teams/create', {
+        const response = await fetch('http://10.0.0.124:8080/teams/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
