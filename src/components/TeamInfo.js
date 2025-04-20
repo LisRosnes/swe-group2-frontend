@@ -2,98 +2,171 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './TeamInfo.css';
 
-const TeamInfo = () => {
+const BACKEND_URL = 'http://localhost:8080';
+
+export default function TeamInfo() {
   const { teamId } = useParams();
   const navigate = useNavigate();
+
+  const [team, setTeam] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [requesting, setRequesting] = useState(false);
-  const [team, setTeam] = useState({
-    id: 'team-1',
-    name: 'Alpha Squad',
-    gameName: 'Brutal Legend',
-    teamSize: 3,
-    time: 'Weekends, 8:00 PM - 11:00 PM',
-    description: 'Casual team looking for players to climb ranked. All skill levels welcome!',
-    members: [
-      {
-        name: 'Alice',
-        avatar: 'https://ui-avatars.com/api/?name=Alice&background=4a90e2&color=fff&size=100'
-      },
-      {
-        name: 'Bob',
-        avatar: 'https://ui-avatars.com/api/?name=Bob&background=e24a4a&color=fff&size=100'
-      },
-      {
-        name: 'Charlie',
-        avatar: 'https://ui-avatars.com/api/?name=Charlie&background=4ae24a&color=fff&size=100'
-      }
-    ],
-    host: 'Alice'
-  });
 
   useEffect(() => {
-    console.log(`Fetching data for team ID: ${teamId}`);
-    const timer = setTimeout(() => {
-      console.log('Team data loaded');
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [teamId]);
+    const fetchTeam = async () => {
+      setLoading(true);
+      setError('');
 
-  const handleRequestJoin = () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('You must be logged in to view team details.');
+        navigate('/login');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/teams/${teamId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server responded ${res.status}`);
+        }
+
+        const data = await res.json();
+        setTeam(data.team);
+        setMembers(data.members || []);
+      } catch (err) {
+        console.error('Fetch failed, falling back to localStorage', err);
+        setError('Failed to load team data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [teamId, navigate]);
+
+  const handleJoin = async () => {
     setRequesting(true);
-    setTimeout(() => {
+    setError('');
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('You must be logged in to join a team.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/teams/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ id: Number(teamId) })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server responded ${res.status}`);
+      }
+
       alert('Join request sent successfully!');
+
+      window.location.reload();
+    } catch (err) {
+      console.error('Join failed', err);
+      setError('Failed to join team.');
+    } finally {
       setRequesting(false);
-    }, 1000);
+    }
   };
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
+  const handleBack = () => navigate('/');
+
+  const formatTime = t => new Date(t).toLocaleString([], {
+    weekday: 'long', hour: '2-digit', minute: '2-digit'
+  });
+
+  const renderMembers = () => (
+    <div className="team-members">
+      {members.map((m, i) => {
+        const name = m.username || m.name || `User ${m.id}`;
+        const isHost = m.id === team.creatorId;
+        return (
+          <div key={i} className="member">
+            <img
+              className="avatar"
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=100`}
+              alt={name}
+            />
+            <div>
+              {name} {isHost && <strong>(Host)</strong>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="team-info-container">
+        <button onClick={handleBack} className="back-btn">← Home</button>
+        <p>Loading team details…</p>
+      </div>
+    );
+  }
+
+  if (error && !team) {
+    return (
+      <div className="team-info-container">
+        <button onClick={handleBack} className="back-btn">← Home</button>
+        <p className="error">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="team-info-container">
-      <div className="team-info-header">
-        <button className="back-button" onClick={handleBackToHome}>Home</button>
-        <h1>Team Info Page</h1>
+      <div className="team-header">
+        <button onClick={handleBack} className="back-btn">← Home</button>
+        <h1>{team.teamName}</h1>
       </div>
-      <div className="team-info-card">
-        <div className="team-info-field">
-          <label>Game Name:</label>
-          <span>{team.gameName}</span>
+
+      <div className="team-details">
+        <div><strong>Game ID:</strong> {team.gameId}</div>
+        <div><strong>Size:</strong> {team.teamSize} players</div>
+        <div>
+          <strong>When:</strong>{' '}
+          {team.fromTime && team.toTime
+            ? `${formatTime(team.fromTime)} – ${formatTime(team.toTime)}`
+            : 'N/A'}
         </div>
-        <div className="team-info-field">
-          <label>Team Size:</label>
-          <span>{team.teamSize} Members</span>
-        </div>
-        <div className="team-info-field">
-          <label>Time:</label>
-          <span>{team.time}</span>
-        </div>
-        <div className="team-info-field">
-          <label>Description:</label>
+        <div><strong>Description:</strong>
           <p>{team.description}</p>
         </div>
-        <div className="team-info-field">
-          <label>Current team Members:</label>
-          <div className="team-members-list">
-            {team.members.map((member, index) => (
-              <div key={index} className="team-member">
-                <img src={member.avatar} alt={member.name} className="member-avatar" />
-                <span>{member.name}{member.name === team.host ? ' (Host)' : ''}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <button
-          className="request-join-button"
-          onClick={handleRequestJoin}
-          disabled={requesting}
-        >
-          {requesting ? 'Sending Request...' : 'Request to join'}
-        </button>
+        <div><strong>Members:</strong></div>
+        {renderMembers()}
       </div>
+
+      <button
+        className="join-btn"
+        onClick={handleJoin}
+        disabled={requesting}
+      >
+        {requesting ? 'Requesting…' : 'Request to Join'}
+      </button>
+
+      {error && <p className="error">{error}</p>}
     </div>
   );
-};
-
-export default TeamInfo;
+}
