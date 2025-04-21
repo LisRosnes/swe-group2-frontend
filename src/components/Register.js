@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Register.css'; 
+import './Register.css';
 
 function Register() {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ function Register() {
     password: '',
     email: ''
   });
-  const [error, setError] = useState(''); 
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const registerEndpoint = 'http://10.44.223.4:8080/user/register';
 
@@ -25,8 +25,8 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!formData.username ||!formData.email || !formData.password) {
+
+    if (!formData.username || !formData.email || !formData.password) {
       setError('Please fill in all fields');
       return;
     }
@@ -64,7 +64,7 @@ function Register() {
       <div className="register-form">
         <h1>Register</h1>
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           {/* <div className="form-group">
             <label htmlFor="firstname">First Name</label>
@@ -89,7 +89,7 @@ function Register() {
               placeholder="Enter your last name"
             />
           </div> */}
-          
+
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -101,7 +101,7 @@ function Register() {
               placeholder="Enter your username"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -113,7 +113,7 @@ function Register() {
               placeholder="Enter a valid email"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -125,7 +125,7 @@ function Register() {
               placeholder="Enter a password"
             />
           </div>
-          
+
           {/* <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input
@@ -137,16 +137,16 @@ function Register() {
               placeholder="Confirm your password"
             />
           </div> */}
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="register-button"
             disabled={loading}
           >
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        
+
         <p className="login-link">
           Already have an account? <Link to="/login">Login</Link>
         </p>

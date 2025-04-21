@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Login.css'; 
+import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -65,7 +65,7 @@ function Login() {
       console.log('Login successful:', userData);
 
       navigate('/');
-      
+
     } catch (error) {
       console.error('Login error:', error);
       setError('Login failed. Please check your connection and try again.');
@@ -79,7 +79,7 @@ function Login() {
       <div className="login-form">
         <h2>Login</h2>
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -92,7 +92,7 @@ function Login() {
               placeholder="Enter your username"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -104,16 +104,16 @@ function Login() {
               placeholder="Enter your password"
             />
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="login-button"
             disabled={loading}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        
+
         <p className="register-link">
           Don't have an account? <Link to="/register">Register</Link>
         </p>
