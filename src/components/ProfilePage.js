@@ -74,10 +74,13 @@ const ProfilePage = () => {
             const teamsData = await teamsRes.json();
 
             const userData = {
+                id: meData.id,
                 firstName: meData.name ? meData.name.split(' ')[0] || '' : '',  // Extract first name from name
                 lastName: meData.name ? meData.name.split(' ')[1] || '' : '',   // Extract last name from name
                 username: meData.username || '',
+                password: meData.password || '',
                 email: meData.email || '',
+                phone: meData.phone || '',
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
                 profilePicture: meData.profilePicture ? `http://localhost:8080${meData.profilePicture}` : null,
@@ -231,37 +234,47 @@ const ProfilePage = () => {
     const saveProfileChanges = async () => {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await fetch('http://localhost:8080/user/update-profile', {
-                method: 'PUT',
+            if (!token) {
+                setError("Authentication token not found. Please log in.");
+                return;
+            }
+            
+            // Log the current profile before update
+            console.log('Current profile before update:', profile);
+
+            const payload = {
+                id: profile.id,
+                name: `${editedProfile.firstName} ${editedProfile.lastName}`.trim(),
+                username: editedProfile.username,
+                email: editedProfile.email,
+                phone: editedProfile.phone,
+                bio: editedProfile.bio,
+                favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
+                createdAt: profile.createdAt,
+                updatedAt: new Date().toISOString(),
+              };
+
+
+            console.log("Payload to send:", payload);
+                      
+            const response = await fetch('http://localhost:8080/user/edit', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                // When saving profile changes:
-                body: JSON.stringify({
-                    name: `${editedProfile.firstName} ${editedProfile.lastName}`,
-                    bio: editedProfile.bio,
-                    favoriteGenres: editedProfile.favoriteGenres.join(','),
-                })
+                body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error('save failed');
-            const updated = await response.json();
-            setProfile(prev => ({ ...prev, ...{
-                firstName:      updated.firstName,
-                lastName:       updated.lastName,
-                bio:             updated.bio,
-                favoriteGenres: updated.favoriteGenres,
-              }}));
-              setEditedProfile(prev => ({ ...prev, ...{
-                firstName:      updated.firstName,
-                lastName:       updated.lastName,
-                bio:             updated.bio,
-                favoriteGenres: updated.favoriteGenres,
-              }}));
 
-            setIsEditing(false);
-            alert('Profile updated successfully');
-
+            if (response.ok) {
+                await fetchUserProfile();
+                setIsEditing(false);
+                alert("Update success");
+              } else {
+                const errText = await response.text();
+                throw new Error(errText);
+              }
+              
         } catch (error) {
             console.error('Error saving profile changes:', error);
         }
@@ -336,6 +349,7 @@ const ProfilePage = () => {
             <div className="left-column">
                 <div className="profile-header">
                     <h1>My Profile</h1>
+                    {/* <p1>Username: {profile.username}</p1> */}
                     {!isEditing ? (
                         <button onClick={handleEditProfile}>Edit Profile</button>
                     ) : (
