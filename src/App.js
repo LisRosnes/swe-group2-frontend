@@ -65,7 +65,7 @@ function App() {
         return;
       }
       try {
-        const response = await fetch('http://10.44.223.4:8080/teams', {
+        const response = await fetch(`http://localhost:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -270,20 +270,20 @@ function App() {
                 <p>Released: {game.released || 'N/A'}</p>
               </div>
             ))}
-            </div>
-            {/* Manually test TeamInfo route */}
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          </div>
+          {/* Manually test TeamInfo route */}
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
             <Link to="/team/1" style={{ fontWeight: 'bold', color: '#007bff' }}>
               🔍 Click here to test Team Info for team 1
             </Link>
-              {/* <Link to="/team/team-1" style={{ fontWeight: 'bold', color: '#007bff' }}>
+            {/* <Link to="/team/team-1" style={{ fontWeight: 'bold', color: '#007bff' }}>
                 🔍 Click here to test Team Info for team-1
               </Link> */}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default App;

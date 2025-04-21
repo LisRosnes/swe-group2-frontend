@@ -14,19 +14,19 @@ import './ProfilePage.css';
 // Falls back to a default image if none exists
 
 // Profile Page Component
-    // Profile summary comp
-        // personal info (editable form)
-            // name
-            // email
-            // bio
-        // community summary
-            // total reviews
-            // total teams
-    // my reviews
-        // game | rating | review text
+// Profile summary comp
+// personal info (editable form)
+// name
+// email
+// bio
+// community summary
+// total reviews
+// total teams
+// my reviews
+// game | rating | review text
 
-    // my teams
-        // team name | team description | team members
+// my teams
+// team name | team description | team members
 
 
 const ProfilePage = () => {
@@ -45,20 +45,20 @@ const ProfilePage = () => {
         favoriteGenres: ['RPG', 'Strategy', 'Adventure'],
         profilePicture: null,
         gameReviews: [
-        {
-            id: 1,
-            name: 'Placeholder Game 1',
-            rating: 4,
-            review: 'Great game with immersive gameplay!',
-            img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
-        },
-        {
-            id: 2,
-            name: 'Placeholder Game 2',
-            rating: 5,
-            review: 'Enjoyed the graphics and storyline.',
-            img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
-        }
+            {
+                id: 1,
+                name: 'Placeholder Game 1',
+                rating: 4,
+                review: 'Great game with immersive gameplay!',
+                img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
+            },
+            {
+                id: 2,
+                name: 'Placeholder Game 2',
+                rating: 5,
+                review: 'Enjoyed the graphics and storyline.',
+                img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
+            }
         ],
         gameTeams: [
             {
@@ -78,7 +78,7 @@ const ProfilePage = () => {
         ]
     });
 
-    const [editedProfile, setEditedProfile] = useState({...profile});
+    const [editedProfile, setEditedProfile] = useState({ ...profile });
 
     // Fetch user profile data on component mount
     useEffect(() => {
@@ -91,7 +91,7 @@ const ProfilePage = () => {
                     return;
                 }
 
-                const response = await fetch('http://10.44.157.76:8080/user/me', {
+                const response = await fetch('http://localhost:8080/user/me', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ const ProfilePage = () => {
                     username: userData.username,
                     email: userData.email,
                     profilePicture: userData.profile_picture
-                        ? `http://10.44.157.76:8080${userData.profile_picture}`
+                        ? `http://localhost:8080${userData.profile_picture}`
                         : null
                 }));
 
@@ -120,7 +120,7 @@ const ProfilePage = () => {
                     username: userData.username,
                     email: userData.email,
                     profilePicture: userData.profile_picture
-                        ? `http://10.44.157.76:8080${userData.profile_picture}`
+                        ? `http://localhost:8080${userData.profile_picture}`
                         : null
                 }));
 
@@ -214,7 +214,7 @@ const ProfilePage = () => {
                 return;
             }
 
-            const response = await fetch('http://10.44.157.76:8080/user/profile-picture', {
+            const response = await fetch('http://localhost:8080/user/profile-picture', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -230,7 +230,7 @@ const ProfilePage = () => {
             console.log('Profile picture updated:', data);
 
             // Update profile picture URL in state
-            const profilePictureUrl = `http://10.44.157.76:8080${data.profile_picture_url}`;
+            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
             setEditedProfile({
                 ...editedProfile,
                 profilePicture: profilePictureUrl
@@ -249,12 +249,12 @@ const ProfilePage = () => {
         // In a real app, here you would send the updated profile to your backend
         try {
             // For now, we'll just update the local state
-            setProfile({...editedProfile});
+            setProfile({ ...editedProfile });
             setIsEditing(false);
 
             // You could add an API call here to save the profile data
             // const token = localStorage.getItem('authToken');
-            // const response = await fetch('http://10.44.157.76:8080/user/update-profile', {
+            // const response = await fetch('http://localhost:8080/user/update-profile', {
             //     method: 'PUT',
             //     headers: {
             //         'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ const ProfilePage = () => {
 
     // Function to cancel editing
     const cancelEditing = () => {
-        setEditedProfile({...profile});
+        setEditedProfile({ ...profile });
         setIsEditing(false);
     };
 
@@ -358,7 +358,7 @@ const ProfilePage = () => {
 
                             <div className="form-group">
                                 <label>Last Name:</label>
-                                <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange}/>
+                                <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange} />
                             </div>
 
                             <div className="form-group">
@@ -373,7 +373,7 @@ const ProfilePage = () => {
 
                             <div className="form-group">
                                 <label>Bio:</label>
-                                <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4"/>
+                                <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4" />
                             </div>
 
                             <div className="form-group">
