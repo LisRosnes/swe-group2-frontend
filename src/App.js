@@ -45,7 +45,7 @@ function App() {
     setSearchValue(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = async () => {
     if (searchType === 'game') {
       // Using rawg API for game search with top 12 matches
       fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(searchValue)}&page_size=12`)
@@ -59,57 +59,42 @@ function App() {
         .catch((err) => console.error('Error searching games:', err));
       setTeamSearchMessage('');
     } else if (searchType === 'team') {
-      // Dummy team search
-      const lowerSearch = searchValue.toLowerCase();
-      let dummyTeamMatches = [];
-      if (lowerSearch.includes('1') || lowerSearch.includes('2')) {
-        dummyTeamMatches = [
-          {
-            id: 'team-1',
-            game: 'Brutal Legend',
-            name: 'Alpha Squad',
-            members: ['Alice', 'Bob', 'Charlie'],
-            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
-          },
-          {
-            id: 'team-2',
-            game: 'Outlast',
-            name: 'Survivors',
-            members: ['Dave', 'Eve'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
-          },
-        ];
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('You must be logged in to search for team');
+        return;
       }
-      if (dummyTeamMatches.length > 0) {
-        setSearchResults({ type: 'team', data: dummyTeamMatches });
-        setTeamSearchMessage('');
-      } else {
-        // No matching teams found then show message and recommended teams
-        const recommendedTeams = [
-          {
-            id: 'team-1',
-            game: 'Brutal Legend',
-            name: 'Alpha Squad',
-            members: ['Alice', 'Bob', 'Charlie'],
-            background_image: 'https://media.rawg.io/media/resize/640/-/screenshots/ded/ded6b47a8903f3ff9903f2068f132942.jpg',
+      try {
+        const response = await fetch(`http://localhost:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
-          {
-            id: 'team-2',
-            game: 'Outlast',
-            name: 'Survivors',
-            members: ['Dave', 'Eve'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/83f/83ff600f8e2dd8507e7961d3e9f32126.jpg',
-          },
-          {
-            id: 'team-3',
-            game: 'Quake Champions',
-            name: 'Champions United',
-            members: ['Frank', 'Grace', 'Heidi'],
-            background_image: 'https://media.rawg.io/media/resize/420/-/screenshots/cbd/cbd0b3115423fb6d25f13fa6091ffbf2.jpg',
-          },
-        ];
-        setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
-        setSearchResults({ type: 'team', data: recommendedTeams });
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          throw new Error(`Teams request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        // Data is an array of TeamWithMembers objects
+        const lowerSearch = searchValue.toLowerCase();
+        const filtered = data.filter(item =>
+          item.team.teamName.toLowerCase().includes(lowerSearch)
+        );
+        if (filtered.length > 0) {
+          setSearchResults({ type: 'team', data: filtered });
+          setTeamSearchMessage('');
+        } else {
+          setTeamSearchMessage('No matching teams found. Showing recommended teams instead.');
+          // Shuffle and take 12 random teams from the fetched data
+          const recommended = data.sort(() => 0.5 - Math.random()).slice(0, 12);
+          setSearchResults({ type: 'team', data: recommended });
+        }
+        setCurrentPage(1); // Reset pagination
+      } catch (err) {
+        console.error('Error searching teams:', err);
+        setTeamSearchMessage('Team search failed. Please try again later...');
       }
     }
     console.log(`Search submitted for ${searchType} with query: ${searchValue}`);
@@ -149,6 +134,11 @@ function App() {
 
   const paginatedGameResults =
     searchResults && searchResults.type === 'game'
+      ? searchResults.data.slice((currentPage - 1) * 6, currentPage * 6)
+      : [];
+
+  const paginatedTeamResults =
+    searchResults && searchResults.type === 'team'
       ? searchResults.data.slice((currentPage - 1) * 6, currentPage * 6)
       : [];
 
@@ -232,14 +222,34 @@ function App() {
             <h2>Search Results for Teams</h2>
             {teamSearchMessage && <p>{teamSearchMessage}</p>}
             <div className="search-results-grid">
-              {searchResults.data.map((team) => (
-                <Link to={`/team/${team.id}`} className="team-card" key={team.id}>
-                  <img src={team.background_image || logo} alt={team.game} />
-                  <h4>Game: {team.game}</h4>
-                  <h3>Team: {team.name}</h3>
-                  <p>Members: {team.members.join(', ')}</p>
-                </Link>
-              ))}
+              {paginatedTeamResults.map((item) => {
+                const team = item.team;
+                const members = item.members;
+                return (
+                  <Link to={`/team/${team.id}`} className="team-card" key={team.id}>
+                    {/* Error image */}
+                    <img src={logo} alt={team.teamName} />
+                    <h3>Team: {team.teamName}</h3>
+                    <p>
+                      Members: {members.map((m) => m.username).join(', ')}
+                    </p>
+                    <p>Description: {team.description}</p>
+                  </Link>
+                );
+              })}
+            </div>
+            {/* Pagination Controls for team search */}
+            <div className="pagination">
+              {currentPage > 1 && (
+                <button onClick={() => setCurrentPage(currentPage - 1)}>
+                  Previous Page
+                </button>
+              )}
+              {currentPage * 6 < searchResults.data.length && (
+                <button onClick={() => setCurrentPage(currentPage + 1)}>
+                  Next Page
+                </button>
+              )}
             </div>
           </>
         )
@@ -260,20 +270,20 @@ function App() {
                 <p>Released: {game.released || 'N/A'}</p>
               </div>
             ))}
-            </div>
-            {/* Manually test TeamInfo route */}
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          </div>
+          {/* Manually test TeamInfo route */}
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
             <Link to="/team/1" style={{ fontWeight: 'bold', color: '#007bff' }}>
               🔍 Click here to test Team Info for team 1
             </Link>
-              {/* <Link to="/team/team-1" style={{ fontWeight: 'bold', color: '#007bff' }}>
+            {/* <Link to="/team/team-1" style={{ fontWeight: 'bold', color: '#007bff' }}>
                 🔍 Click here to test Team Info for team-1
               </Link> */}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default App;

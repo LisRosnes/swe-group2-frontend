@@ -14,19 +14,19 @@ import './ProfilePage.css';
 // Falls back to a default image if none exists
 
 // Profile Page Component
-    // Profile summary comp
-        // personal info (editable form)
-            // name
-            // email
-            // bio
-        // community summary
-            // total reviews
-            // total teams
-    // my reviews
-        // game | rating | review text
+// Profile summary comp
+// personal info (editable form)
+// name
+// email
+// bio
+// community summary
+// total reviews
+// total teams
+// my reviews
+// game | rating | review text
 
-    // my teams
-        // team name | team description | team members
+// my teams
+// team name | team description | team members
 
 
 const ProfilePage = () => {
@@ -282,7 +282,7 @@ const ProfilePage = () => {
 
     // Function to cancel editing
     const cancelEditing = () => {
-        setEditedProfile({...profile});
+        setEditedProfile({ ...profile });
         setIsEditing(false);
     };
 
@@ -387,7 +387,7 @@ const ProfilePage = () => {
 
                             <div className="form-group">
                                 <label>Last Name:</label>
-                                <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange}/>
+                                <input type="text" name="lastName" value={editedProfile.lastName} onChange={handleInputChange} />
                             </div>
 
                             <div className="form-group">
@@ -402,7 +402,7 @@ const ProfilePage = () => {
 
                             <div className="form-group">
                                 <label>Bio:</label>
-                                <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4"/>
+                                <textarea name="bio" value={editedProfile.bio} onChange={handleInputChange} rows="4" />
                             </div>
 
                             <div className="form-group">

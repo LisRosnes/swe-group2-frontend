@@ -55,13 +55,13 @@ const GameInfo = () => {
       try {
         const token = localStorage.getItem('authToken');
         console.log('Auth Token:', token); // 🔍 Debugging: Print the token
-  
+
         if (!token) {
           console.warn('No auth token found, skipping comment fetch');
           return;
         }
-  
-        const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+
+        const response = await fetch(`http://localhost:8080/game_info/${game.id}/comments`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -69,9 +69,9 @@ const GameInfo = () => {
             'credentials': 'include',
           },
         });
-  
+
         if (!response.ok) throw new Error('Failed to fetch comments');
-  
+
         const data = await response.json();
         const formatted = data.map(comment => ({
           user: `User${comment.userId}`,
@@ -82,25 +82,25 @@ const GameInfo = () => {
         console.error('Error fetching comments:', error);
       }
     };
-  
+
     fetchComments();
   }, [game.id]);
-  
-  
+
+
 
   // Post new comment to backend
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-  
+
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
         alert('You must be logged in to post a comment');
         return;
       }
-  
-      const response = await fetch(`http://10.44.157.76:8080/game_info/${game.id}/comments`, {
+
+      const response = await fetch(`http://localhost:8080/game_info/${game.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,15 +111,15 @@ const GameInfo = () => {
           content: newComment
         }),
       });
-  
+
       if (!response.ok) throw new Error('Failed to post comment');
-  
+
       setComments([...comments, { user: 'You', text: newComment }]);
       setNewComment('');
     } catch (error) {
       console.error('Error posting comment:', error);
     }
-  };  
+  };
 
   const handleBackToHome = () => {
     navigate('/');
