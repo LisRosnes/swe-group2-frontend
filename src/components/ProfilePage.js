@@ -69,9 +69,15 @@ const ProfilePage = () => {
             if (!meRes.ok || !reviewsRes.ok || !teamsRes.ok) {
                 throw new Error('Failed to fetch profile data');
             }
+
+            
+            // console.log('teamsRes status:', teamsRes.status, '– headers:', teamsRes.headers);
+            
+
             const meData = await meRes.json();
             const reviewsData = await reviewsRes.json();
             const teamsData = await teamsRes.json();
+            // console.log('raw teamsData:', teamsData);
 
             const userData = {
                 id: meData.id,
@@ -83,7 +89,7 @@ const ProfilePage = () => {
                 phone: meData.phone || '',
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
-                profilePicture: meData.profilePicture ? `http://localhost:8080${meData.profilePicture}` : null,
+                profilePicture: meData.avatar ? `http://localhost:8080${meData.avatar}` : null,
                 
                 gameReviews: reviewsData.map(review => ({
                     id: review.id,
@@ -101,10 +107,10 @@ const ProfilePage = () => {
                     gameId: teamData.team.gameId,
                     teamSize: teamData.team.teamSize,
                     fromTime: teamData.team.fromTime,
-                    toTime: teamData.team.toTime,
-                    img: teamData.team.teamImage 
-                        ? `http://localhost:8080${teamData.team.teamImage}` 
-                        : "https://ui-avatars.com/api/?name=Team&background=random"
+                    toTime: teamData.team.toTime
+                    // img: teamData.team.teamImage 
+                    //     ? `http://localhost:8080${teamData.team.teamImage}` 
+                    //     : "https://ui-avatars.com/api/?name=Team&background=random"
                 }))
             };
             setProfile(userData);
@@ -165,70 +171,119 @@ const ProfilePage = () => {
     };
 
     // Function to handle file selection
-    const handleFileChange = async (e) => {
+    // const handleFileChange = async (e) => {
+    //     const file = e.target.files[0];
+    //     if (!file) return;
+
+    //     // Client-side validation
+    //     if (!file.type.match('image.*')) {
+    //         alert('Please select an image file');
+    //         return;
+    //     }
+
+    //     try {
+    //         setIsUploadingPicture(true);
+
+    //         // Read the file as data URL for preview
+    //         const reader = new FileReader();
+    //         reader.onloadend = () => {
+    //             // Update the local state with the image preview
+    //             setEditedProfile({
+    //                 ...editedProfile,
+    //                 profilePicture: reader.result
+    //             });
+    //         };
+    //         reader.readAsDataURL(file);
+
+    //         // Upload to server
+    //         const formData = new FormData();
+    //         formData.append('file', file);
+
+    //         const token = localStorage.getItem('authToken');
+    //         if (!token) {
+    //             // If not logged in, just show the preview but don't upload
+    //             setIsUploadingPicture(false);
+    //             return;
+    //         }
+
+    //         const response = await fetch('http://localhost:8080/user/profile-picture', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //             },
+    //             body: formData
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error('Failed to upload profile picture');
+    //         }
+
+    //         const data = await response.json();
+    //         console.log('Profile picture updated:', data);
+
+    //         // Update profile picture URL in state
+    //         const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
+    //         setEditedProfile({
+    //             ...editedProfile,
+    //             profilePicture: profilePictureUrl
+    //         });
+
+    //     } catch (error) {
+    //         console.error('Error uploading profile picture:', error);
+    //         alert('Failed to upload profile picture');
+    //     } finally {
+    //         setIsUploadingPicture(false);
+    //     }
+    // };
+
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
-
-        // Client-side validation
-        if (!file.type.match('image.*')) {
-            alert('Please select an image file');
-            return;
+        if (!file || !file.type.match('image.*')) {
+          return alert('Please pick an image file');
         }
-
-        try {
-            setIsUploadingPicture(true);
-
-            // Read the file as data URL for preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                // Update the local state with the image preview
-                setEditedProfile({
-                    ...editedProfile,
-                    profilePicture: reader.result
-                });
-            };
-            reader.readAsDataURL(file);
-
-            // Upload to server
-            const formData = new FormData();
-            formData.append('file', file);
-
+      
+        setIsUploadingPicture(true);
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          // reader.result is like "data:image/png;base64,iVBORw0KGgo…"
+          const [_, base64] = reader.result.split(',');
+      
+          try {
             const token = localStorage.getItem('authToken');
-            if (!token) {
-                // If not logged in, just show the preview but don't upload
-                setIsUploadingPicture(false);
-                return;
-            }
+            if (!token) throw new Error('Not authenticated');
+      
+            // send JSON { file: "<base64>" }
+            console.log('→ sending to /user/avatar with token:', token);
 
-            const response = await fetch('http://localhost:8080/user/profile-picture', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData
+            const res = await fetch('http://localhost:8080/user/avatar', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ file: base64 })
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to upload profile picture');
-            }
-
-            const data = await response.json();
-            console.log('Profile picture updated:', data);
-
-            // Update profile picture URL in state
-            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
-            setEditedProfile({
-                ...editedProfile,
-                profilePicture: profilePictureUrl
-            });
-
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            alert('Failed to upload profile picture');
-        } finally {
+      
+            const text = await res.text();
+            if (!res.ok) throw new Error(text);
+      
+            // assume JSON `{ avatar: "/uploads/123.png" }`
+            let data;
+            try { data = JSON.parse(text); } catch { data = { avatar: text }; }
+      
+            const avatarUrl = `http://localhost:8080${data.avatar}`;
+            setEditedProfile(p => ({ ...p, avatar: avatarUrl }));
+          } catch (err) {
+            console.error(err);
+            alert(`Upload failed: ${err.message}`);
+          } finally {
             setIsUploadingPicture(false);
-        }
-    };
+          }
+        };
+      
+        reader.readAsDataURL(file);
+      };
+      
 
     // Function to save profile changes
     const saveProfileChanges = async () => {
@@ -450,6 +505,8 @@ const ProfilePage = () => {
                 </div>
                 <div className="community-summary">
                     <h2>My Teams</h2>
+                    <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre>
+
                     <div className="team-container">
                         {profile.gameTeams.map((team) => (
                             <button key={team.id} className="team-card"
