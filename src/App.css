@@ -23,6 +23,11 @@
   gap: 10px;
 }
 
+.home-button-wrapper,
+.build-team-button-wrapper {
+  margin-top: 10px;
+}
+
 .game-cards-container {
   display: flex;
   gap: 20px;

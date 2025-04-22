@@ -23,13 +23,20 @@ html, body {
   flex-direction: column;
   margin-bottom: 20px;
 }
-
 /* Buttons container */
 .button-group {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 10;
 }
+
+.build-team-button-wrapper {
+  margin-top: 16px;
+  text-align: left; /* or center/right if preferred */
+}
+
 
 /* Shared button style */
 .back-button {

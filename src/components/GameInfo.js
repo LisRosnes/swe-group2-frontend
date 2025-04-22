@@ -74,10 +74,12 @@ const GameInfo = () => {
 
         const data = await response.json();
         const formatted = data.map(comment => ({
-          user: `User${comment.userId}`,
+          user: comment.username,
           text: comment.content
         }));
         setComments(formatted);
+        console.log('Raw comments data:', data);
+
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
@@ -116,6 +118,9 @@ const GameInfo = () => {
 
       setComments([...comments, { user: 'You', text: newComment }]);
       setNewComment('');
+      console.log("Submitting comment:", {
+        content: newComment
+      });      
     } catch (error) {
       console.error('Error posting comment:', error);
     }
@@ -132,25 +137,32 @@ const GameInfo = () => {
       navigate('/login');
       return;
     }
-    navigate('/build-team');
+
+    navigate('/build-team', {
+      state: {
+        gameId: game.id,
+      }
+    });
   };
 
   return (
     <div className="game-info-container">
+      <button className="back-button" onClick={handleBackToHome}>Home</button>
       <div className="game-info-header">
-        <div className="button-group">
-          <button className="back-button" onClick={handleBackToHome}>Home</button>
-          <button className="back-button" onClick={handleBuildTeamClick}>Build Team</button>
-        </div>
         <div className="game-title-wrapper">
           <h1>{game.name || 'Game Info'}</h1>
         </div>
+      </div>
+
+      <div className="button-group">
+        <button className="back-button" onClick={handleBuildTeamClick}>Build Team</button>
       </div>
 
       {requesting ? (
         <p>Loading game data...</p>
       ) : (
         <div className="game-info-card">
+
           <div className="game-info-field">
             <label>Genre:</label>
             <span>{game.genre}</span>
