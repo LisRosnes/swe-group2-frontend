@@ -30,107 +30,93 @@ import './ProfilePage.css';
 
 
 const ProfilePage = () => {
-    // Example profile state
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [isUploadingPicture, setIsUploadingPicture] = useState(false);
     const fileInputRef = useRef(null);
-
-    const [profile, setProfile] = useState({
-        firstName: 'John',
-        lastName: 'Doe',
-        username: 'GameExplorer',
-        email: 'gameexplorer@example.com',
-        bio: 'Avid gamer and reviewer. Love exploring new games and sharing my thoughts.',
-        favoriteGenres: ['RPG', 'Strategy', 'Adventure'],
-        profilePicture: null,
-        gameReviews: [
-            {
-                id: 1,
-                name: 'Placeholder Game 1',
-                rating: 4,
-                review: 'Great game with immersive gameplay!',
-                img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
-            },
-            {
-                id: 2,
-                name: 'Placeholder Game 2',
-                rating: 5,
-                review: 'Enjoyed the graphics and storyline.',
-                img: "https://raw.githubusercontent.com/mu-xiaofan/Icy/main/icy.png"
-            }
-        ],
-        gameTeams: [
-            {
-                id: 'team-1',
-                name: 'Team Alpha',
-                description: 'A team of elite gamers.',
-                members: ['John', 'Jane', 'Doe'],
-                img: '/team1.jpg'
-            },
-            {
-                id: 'team-2',
-                name: 'Team Beta',
-                description: 'Casual gamers united.',
-                members: ['Alice', 'Bob'],
-                img: '/team2.jpg'
-            }
-        ]
-    });
-
-    const [editedProfile, setEditedProfile] = useState({ ...profile });
+    const [profile, setProfile] = useState(null);
+    const [editedProfile, setEditedProfile] = useState(null);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     // Fetch user profile data on component mount
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    // If no token, we'll just use the default data
-                    // In a real app, you might want to redirect to login
-                    return;
-                }
-
-                const response = await fetch('http://localhost:8080/user/me', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch profile');
-                }
-
-                const userData = await response.json();
-
-                // Update profile with user data from the server
-                setProfile(prevProfile => ({
-                    ...prevProfile,
-                    username: userData.username,
-                    email: userData.email,
-                    profilePicture: userData.profile_picture
-                        ? `http://localhost:8080${userData.profile_picture}`
-                        : null
-                }));
-
-                setEditedProfile(prevProfile => ({
-                    ...prevProfile,
-                    username: userData.username,
-                    email: userData.email,
-                    profilePicture: userData.profile_picture
-                        ? `http://localhost:8080${userData.profile_picture}`
-                        : null
-                }));
-
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-            }
-        };
-
         fetchUserProfile();
     }, []);
+
+    const fetchUserProfile = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setError("Authentication token not found. Please log in.");
+                setLoading(false);
+                return;
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            }
+
+            const [meRes, reviewsRes, teamsRes] = await Promise.all([
+                fetch('http://localhost:8080/user/me', { headers }),
+                fetch('http://localhost:8080/game_info/comments/me', { headers }),
+                fetch('http://localhost:8080/teams/me',   { headers }),
+                ]);
+
+            if (!meRes.ok || !reviewsRes.ok || !teamsRes.ok) {
+                throw new Error('Failed to fetch profile data');
+            }
+            const meData = await meRes.json();
+            const reviewsData = await reviewsRes.json();
+            const teamsData = await teamsRes.json();
+
+            const userData = {
+                id: meData.id,
+                firstName: meData.name ? meData.name.split(' ')[0] || '' : '',  // Extract first name from name
+                lastName: meData.name ? meData.name.split(' ')[1] || '' : '',   // Extract last name from name
+                username: meData.username || '',
+                password: meData.password || '',
+                email: meData.email || '',
+                phone: meData.phone || '',
+                bio: meData.bio || '',
+                favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
+                profilePicture: meData.profilePicture ? `http://localhost:8080${meData.profilePicture}` : null,
+                
+                gameReviews: reviewsData.map(review => ({
+                    id: review.id,
+                    gameID: review.gameID,
+                    userID: review.userID,
+                    username: review.username,
+                    content: review.content,
+                    timestamp: review.timestamp,
+                })),
+                gameTeams: teamsData.map(teamData => ({
+                    id: teamData.team.id,
+                    name: teamData.team.teamName || 'Unnamed Team',
+                    description: teamData.team.description || 'No description available',
+                    members: teamData.members.map(member => member.username || 'Unknown User'),
+                    gameId: teamData.team.gameId,
+                    teamSize: teamData.team.teamSize,
+                    fromTime: teamData.team.fromTime,
+                    toTime: teamData.team.toTime,
+                    img: teamData.team.teamImage 
+                        ? `http://localhost:8080${teamData.team.teamImage}` 
+                        : "https://ui-avatars.com/api/?name=Team&background=random"
+                }))
+            };
+            setProfile(userData);
+            setEditedProfile({...userData});
+            setLoading(false);
+
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            setError(error.message || 'Failed to load profile data');
+            setLoading(false);
+        }
+    };
 
     // Function to handle profile editing
     const handleEditProfile = () => {
@@ -246,22 +232,49 @@ const ProfilePage = () => {
 
     // Function to save profile changes
     const saveProfileChanges = async () => {
-        // In a real app, here you would send the updated profile to your backend
         try {
-            // For now, we'll just update the local state
-            setProfile({ ...editedProfile });
-            setIsEditing(false);
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setError("Authentication token not found. Please log in.");
+                return;
+            }
+            
+            // Log the current profile before update
+            console.log('Current profile before update:', profile);
 
-            // You could add an API call here to save the profile data
-            // const token = localStorage.getItem('authToken');
-            // const response = await fetch('http://localhost:8080/user/update-profile', {
-            //     method: 'PUT',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${token}`,
-            //     },
-            //     body: JSON.stringify(editedProfile)
-            // });
+            const payload = {
+                id: profile.id,
+                name: `${editedProfile.firstName} ${editedProfile.lastName}`.trim(),
+                username: editedProfile.username,
+                email: editedProfile.email,
+                phone: editedProfile.phone,
+                bio: editedProfile.bio,
+                favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
+                createdAt: profile.createdAt,
+                updatedAt: new Date().toISOString(),
+              };
+
+
+            console.log("Payload to send:", payload);
+                      
+            const response = await fetch('http://localhost:8080/user/edit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                await fetchUserProfile();
+                setIsEditing(false);
+                alert("Update success");
+              } else {
+                const errText = await response.text();
+                throw new Error(errText);
+              }
+              
         } catch (error) {
             console.error('Error saving profile changes:', error);
         }
@@ -275,6 +288,8 @@ const ProfilePage = () => {
 
     // Function to render the profile picture
     const renderProfilePicture = () => {
+        if (!profile) return null;
+
         const profilePic = isEditing ? editedProfile.profilePicture : profile.profilePicture;
         const defaultPic = "https://ui-avatars.com/api/?name=" + profile.username + "&background=random";
 
@@ -313,6 +328,19 @@ const ProfilePage = () => {
         );
     };
 
+    if (loading) {
+        return <div className="profile-page">Loading profile...</div>;
+    }
+
+    if (error) {
+        return <div className="profile-page">Error: {error}</div>;
+    }
+    
+    // If profile is null, don't try to render the profile content
+    if (!profile) {
+        return <div className="profile-page">No profile data available</div>;
+    }
+
     return (
         <div className="profile-page">
             <button className="back-button" onClick={() => navigate('/')}>
@@ -321,6 +349,7 @@ const ProfilePage = () => {
             <div className="left-column">
                 <div className="profile-header">
                     <h1>My Profile</h1>
+                    {/* <p1>Username: {profile.username}</p1> */}
                     {!isEditing ? (
                         <button onClick={handleEditProfile}>Edit Profile</button>
                     ) : (

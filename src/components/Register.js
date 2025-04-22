@@ -49,9 +49,17 @@ function Register() {
         throw new Error('Network response was not ok');
       }
 
+
       navigate('/login');
 
     } catch (err) {
+      const response = await fetch(registerEndpoint, { /* … */ });
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Server error response:", text);
+        throw new Error("Registration failed: " + text);
+        }
+
       console.error('Registration error:', err);
       setError('Registration failed. Please check your connection and try again.');
     } finally {
