@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BuildTeam.css';
+import { useLocation } from 'react-router-dom';
 
 const BuildTeam = () => {
   const navigate = useNavigate();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const location = useLocation();
 
   const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
 
@@ -28,28 +30,35 @@ const BuildTeam = () => {
           setError('You must be logged in to create a team');
           return;
         }
+    
         const response = await fetch(
           `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=1&page_size=20`
         );
         if (!response.ok) throw new Error('Failed to fetch games');
+    
         const data = await response.json();
         const formattedGames = data.results.map(game => ({
           id: game.id,
           name: game.name,
           background_image: game.background_image
         }));
-        setGames(formattedGames);
+    
+        setGames(formattedGames); // ✅ 把游戏列表放到 state
+    
         if (formattedGames.length > 0) {
+          const selectedGameId = location.state?.gameId;
+          const initialGameId = selectedGameId || formattedGames[0].id;
+    
           setFormData(prev => ({
             ...prev,
-            gameId: formattedGames[0].id
+            gameId: initialGameId
           }));
         }
       } catch (error) {
         console.error('Error fetching games:', error);
         setError('Failed to load games. Please try again.');
       }
-    };
+    };    
     fetchGames();
   }, [RAWG_API_KEY]);
 
