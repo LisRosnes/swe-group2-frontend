@@ -124,7 +124,7 @@ const ProfilePage = () => {
                 gameTeams
             };
             setProfile(userData);
-            setEditedProfile({...userData});
+            setEditedProfile({ ...userData });
             setLoading(false);
 
         } catch (error) {
@@ -183,45 +183,69 @@ const ProfilePage = () => {
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (!file) return alert('Please select an image file');
-    
-        const token = localStorage.getItem('authToken');
-        if (!token) return alert('Not authenticated');
-    
-        const formData = new FormData();
-        formData.append('file', file); // matches @RequestParam("file")
-    
-        setIsUploadingPicture(true);
+        if (!file) return;
+
+        // Client-side validation
+        if (!file.type.match('image.*')) {
+            alert('Please select an image file');
+            return;
+        }
+
         try {
-          const res = await fetch('http://localhost:8080/user/avatar', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            body: formData,
-            // credentials: 'include' // if using cookies
-          });
+            setIsUploadingPicture(true);
 
-            const text = (await res.text()).trim();
-            console.log('Upload response:', text);
+            // Read the file as data URL for preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // Update the local state with the image preview
+                setEditedProfile({
+                    ...editedProfile,
+                    profilePicture: reader.result
+                });
+            };
+            reader.readAsDataURL(file);
 
-            if (!res.ok) {
-            throw new Error(`Upload failed: ${text}`);
+            // Upload to server
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                // If not logged in, just show the preview but don't upload
+                setIsUploadingPicture(false);
+                return;
             }
 
-            // build the public URL from the filename your server returned
-            // adjust "/uploads/" to whatever your static-serve path is
-            const avatarUrl = `http://localhost:8080/avatar/${text}`;
+            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData
+            });
 
-            setEditedProfile(p => ({ ...p, profilePicture: avatarUrl }));
-        } catch (err) {
-            console.error('Upload failed:', err);
-            alert(`Upload failed: ${err.message}`);
+            if (!response.ok) {
+                throw new Error('Failed to upload profile picture');
+            }
+
+            const data = await response.json();
+            console.log('Profile picture updated:', data);
+
+            // Update profile picture URL in state
+            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
+            setEditedProfile({
+                ...editedProfile,
+                profilePicture: profilePictureUrl
+            });
+
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            alert('Failed to upload profile picture');
         } finally {
             setIsUploadingPicture(false);
         }
-        };
-      
+    };
+
 
     // Function to save profile changes
     const saveProfileChanges = async () => {
@@ -231,7 +255,7 @@ const ProfilePage = () => {
                 setError("Authentication token not found. Please log in.");
                 return;
             }
-            
+
             // Log the current profile before update
             console.log('Current profile before update:', profile);
 
@@ -245,13 +269,12 @@ const ProfilePage = () => {
                 favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
                 createdAt: profile.createdAt,
                 updatedAt: new Date().toISOString(),
-                avatar: editedProfile.profilePicture ? editedProfile.profilePicture.replace('http://localhost:8080', '') : null,
-              };
+            };
 
 
             console.log("Payload to send:", payload);
-                      
-            const response = await fetch('http://localhost:8080/user/edit', {
+
+            const response = await fetch('http://10.44.140.30:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -264,11 +287,11 @@ const ProfilePage = () => {
                 await fetchUserProfile();
                 setIsEditing(false);
                 alert("Update success");
-              } else {
+            } else {
                 const errText = await response.text();
                 throw new Error(errText);
-              }
-              
+            }
+
         } catch (error) {
             console.error('Error saving profile changes:', error);
         }
@@ -329,7 +352,7 @@ const ProfilePage = () => {
     if (error) {
         return <div className="profile-page">Error: {error}</div>;
     }
-    
+
     // If profile is null, don't try to render the profile content
     if (!profile) {
         return <div className="profile-page">No profile data available</div>;

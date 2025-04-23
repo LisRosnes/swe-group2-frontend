@@ -11,7 +11,7 @@ function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const registerEndpoint = 'http://localhost:8080/user/register';
+  const registerEndpoint = 'http://10.44.140.30:8080/user/register';
 
 
   const handleChange = (e) => {
@@ -58,7 +58,7 @@ function Register() {
         const text = await response.text();
         console.error("Server error response:", text);
         throw new Error("Registration failed: " + text);
-        }
+      }
 
       console.error('Registration error:', err);
       setError('Registration failed. Please check your connection and try again.');
