@@ -59,7 +59,7 @@ const GameInfo = () => {
         }
 
         const res = await fetch(
-          `http://10.44.140.30:8080/game_info/${game.id}/comments`,
+          `http://localhost:8080/game_info/${game.id}/comments`,
           {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` },
@@ -104,7 +104,7 @@ const GameInfo = () => {
 
     try {
       const res = await fetch(
-        `http://10.44.140.30:8080/game_info/comments/${commentId}/like`,
+        `http://localhost:8080/game_info/comments/${commentId}/like`,
         {
           method: willLike ? 'POST' : 'DELETE',
           headers: {
@@ -143,7 +143,7 @@ const GameInfo = () => {
       }
 
       const res = await fetch(
-        `http://10.44.140.30:8080/game_info/${game.id}/comments`,
+        `http://localhost:8080/game_info/${game.id}/comments`,
         {
           method: 'POST',
           headers: {
