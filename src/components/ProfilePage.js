@@ -66,12 +66,43 @@ const ProfilePage = () => {
                 fetch('http://10.44.140.30:8080/teams/me', { headers }),
             ]);
 
-            if (!meRes.ok || !reviewsRes.ok || !teamsRes.ok) {
+            if (!meRes.ok || !reviewsRes.ok) {
                 throw new Error('Failed to fetch profile data');
             }
             const meData = await meRes.json();
             const reviewsData = await reviewsRes.json();
-            const teamsData = await teamsRes.json();
+
+
+            // Attempt to fetch all teams, but don’t abort on failure
+            let allTeams = [];
+            try {
+                const teamsRes = await fetch('http://http://10.44.140.30:8080/teams/find', { headers });
+                if (teamsRes.ok) {
+                    allTeams = await teamsRes.json();
+                } else {
+                    console.warn('Could not fetch teams (status:', teamsRes.status, ')');
+                }
+            } catch (teamsErr) {
+                console.error('Teams fetch error:', teamsErr);
+            }
+
+            // Filter teams by membership
+            const myTeams = allTeams.filter(team => {
+                if (!team.memberIds) return false;
+                const members = team.memberIds.split(',').map(id => Number(id.trim()));
+                return members.includes(meData.id);
+            });
+
+            // Map to UI-friendly object
+            const gameTeams = myTeams.map(team => ({
+                id: team.id,
+                name: team.teamName,
+                description: team.description,
+                members: team.memberIds.split(',').map(id => Number(id)),
+                fromTime: team.fromTime,
+                toTime: team.toTime
+            }));
+
 
             const userData = {
                 id: meData.id,
@@ -165,6 +196,71 @@ const ProfilePage = () => {
     };
 
     // Function to handle file selection
+    // const handleFileChange = async (e) => {
+    //     const file = e.target.files[0];
+    //     if (!file) return;
+
+    //     // Client-side validation
+    //     if (!file.type.match('image.*')) {
+    //         alert('Please select an image file');
+    //         return;
+    //     }
+
+    //     try {
+    //         setIsUploadingPicture(true);
+
+    //         // Read the file as data URL for preview
+    //         const reader = new FileReader();
+    //         reader.onloadend = () => {
+    //             // Update the local state with the image preview
+    //             setEditedProfile({
+    //                 ...editedProfile,
+    //                 profilePicture: reader.result
+    //             });
+    //         };
+    //         reader.readAsDataURL(file);
+
+    //         // Upload to server
+    //         const formData = new FormData();
+    //         formData.append('file', file);
+
+    //         const token = localStorage.getItem('authToken');
+    //         if (!token) {
+    //             // If not logged in, just show the preview but don't upload
+    //             setIsUploadingPicture(false);
+    //             return;
+    //         }
+
+    //         const response = await fetch('http://localhost:8080/user/profile-picture', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //             },
+    //             body: formData
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error('Failed to upload profile picture');
+    //         }
+
+    //         const data = await response.json();
+    //         console.log('Profile picture updated:', data);
+
+    //         // Update profile picture URL in state
+    //         const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
+    //         setEditedProfile({
+    //             ...editedProfile,
+    //             profilePicture: profilePictureUrl
+    //         });
+
+    //     } catch (error) {
+    //         console.error('Error uploading profile picture:', error);
+    //         alert('Failed to upload profile picture');
+    //     } finally {
+    //         setIsUploadingPicture(false);
+    //     }
+    // };
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -229,6 +325,7 @@ const ProfilePage = () => {
             setIsUploadingPicture(false);
         }
     };
+
 
     // Function to save profile changes
     const saveProfileChanges = async () => {
@@ -450,6 +547,8 @@ const ProfilePage = () => {
                 </div>
                 <div className="community-summary">
                     <h2>My Teams</h2>
+                    <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre>
+
                     <div className="team-container">
                         {profile.gameTeams.map((team) => (
                             <button key={team.id} className="team-card"
