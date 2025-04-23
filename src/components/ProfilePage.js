@@ -1,32 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProfilePage.css';
-// need to connect backend
-// Upload Profile Picture: POST /user/profile-picture
-// Requires authentication with Bearer token
-// Accepts form data with a 'file' field containing the image
-// Or accepts JSON with a base64-encoded 'image' field
-// Returns the profile picture URL on success
-
-// Get Profile Picture: GET /user/profile-picture/<user_id>
-// Does not require authentication
-// Returns the JPEG image file directly
-// Falls back to a default image if none exists
-
-// Profile Page Component
-// Profile summary comp
-// personal info (editable form)
-// name
-// email
-// bio
-// community summary
-// total reviews
-// total teams
-// my reviews
-// game | rating | review text
-
-// my teams
-// team name | team description | team members
 
 
 const ProfilePage = () => {
@@ -60,50 +34,81 @@ const ProfilePage = () => {
                 'Authorization': `Bearer ${token}`,
             }
 
-            const [meRes, reviewsRes] = await Promise.all([
+            const [meRes, commentsRes] = await Promise.all([
                 fetch('http://localhost:8080/user/me', { headers }),
                 fetch('http://localhost:8080/game_info/comments/me', { headers })
                 // fetch('http://localhost:8080/teams/find',   { headers }),
                 ]);
 
-            if (!meRes.ok || !reviewsRes.ok) {
+            if (!meRes.ok || !commentsRes.ok) {
                 throw new Error('Failed to fetch profile data');
             }
             const meData = await meRes.json();
-            const reviewsData = await reviewsRes.json();
 
-            
-                  // Attempt to fetch all teams, but don’t abort on failure
-            let allTeams = [];
-            try {
-                const teamsRes = await fetch('http://localhost:8080/teams/find', { headers });
-                if (teamsRes.ok) {
-                allTeams = await teamsRes.json();
-                } else {
-                console.warn('Could not fetch teams (status:', teamsRes.status, ')');
-                }
-            } catch (teamsErr) {
-                console.error('Teams fetch error:', teamsErr);
+            const commentsData = await commentsRes.json();
+
+            const enrichedComments = await Promise.all(
+                commentsData.map(async comment => {
+                  const gameRes = await fetch(
+                    `http://localhost:8080/game_info/${comment.gameId}`,
+                    { headers }
+                  );
+                  const gameData = gameRes.ok ? await gameRes.json() : {};
+                  return {
+                    id:        comment.id,
+                    gameId:    comment.gameId,
+                    content:   comment.content,
+                    timestamp: comment.timestamp,
+                    name:      gameData.name,
+                    img:       gameData.background_image
+                  };
+                })
+              );
+
+
+            const teamsRes = await fetch('http://localhost:8080/teams/me', { headers });
+            let teamsData = [];
+            if (teamsRes.ok) {
+                const raw = await teamsRes.json();
+                console.log('Teams data:', raw);
+                teamsData = raw.map(item => item.team);
+            } else {
+                console.error('Failed to fetch teams data');
             }
-
-            // Filter teams by membership
-            const myTeams = allTeams.filter(team => {
-                if (!team.memberIds) return false;
-                const members = team.memberIds.split(',').map(id => Number(id.trim()));
-                return members.includes(meData.id);
-            });
+            const gameTeams = await Promise.all(
+                teamsData.map(async team => {
+                  // Fetch game details for team
+                  let gameImg = null;
+                  let gameName = '';
+                  try {
+                    const gameRes = await fetch(
+                      `http://localhost:8080/game_info/${team.gameId}`,
+                      { headers }
+                    );
+                    if (gameRes.ok) {
+                      const gameData = await gameRes.json();
+                      gameImg = gameData.background_image;
+                      gameName = gameData.name;
+                    }
+                  } catch (err) {
+                    console.warn('Could not fetch game info for team', team.id, err);
+                  }
         
-              // Map to UI-friendly object
-            const gameTeams = myTeams.map(team => ({
-                id: team.id,
-                name: team.teamName,
-                description: team.description,
-                members: team.memberIds.split(',').map(id => Number(id)),
-                fromTime: team.fromTime,
-                toTime: team.toTime
-            }));
+                  return {
+                    id: team.id,
+                    name: team.teamName,
+                    description: team.description,
+                    members: team.memberIds
+                      ? team.memberIds.split(',').map(idStr => Number(idStr.trim()))
+                      : [],
+                    fromTime: team.fromTime,
+                    toTime: team.toTime,
+                    img: gameImg,
+                    gameName,
+                  };
+                })
+              );         
               
-
             const userData = {
                 id: meData.id,
                 firstName: meData.name ? meData.name.split(' ')[0] || '' : '',  // Extract first name from name
@@ -115,15 +120,7 @@ const ProfilePage = () => {
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
                 profilePicture: meData.avatar ? `http://localhost:8080${meData.avatar}` : null,
-                
-                gameReviews: reviewsData.map(review => ({
-                    id: review.id,
-                    gameID: review.gameID,
-                    userID: review.userID,
-                    username: review.username,
-                    content: review.content,
-                    timestamp: review.timestamp,
-                })),
+                gameReviews: enrichedComments,
                 gameTeams
             };
             setProfile(userData);
@@ -183,71 +180,6 @@ const ProfilePage = () => {
         fileInputRef.current.click();
     };
 
-    // Function to handle file selection
-    // const handleFileChange = async (e) => {
-    //     const file = e.target.files[0];
-    //     if (!file) return;
-
-    //     // Client-side validation
-    //     if (!file.type.match('image.*')) {
-    //         alert('Please select an image file');
-    //         return;
-    //     }
-
-    //     try {
-    //         setIsUploadingPicture(true);
-
-    //         // Read the file as data URL for preview
-    //         const reader = new FileReader();
-    //         reader.onloadend = () => {
-    //             // Update the local state with the image preview
-    //             setEditedProfile({
-    //                 ...editedProfile,
-    //                 profilePicture: reader.result
-    //             });
-    //         };
-    //         reader.readAsDataURL(file);
-
-    //         // Upload to server
-    //         const formData = new FormData();
-    //         formData.append('file', file);
-
-    //         const token = localStorage.getItem('authToken');
-    //         if (!token) {
-    //             // If not logged in, just show the preview but don't upload
-    //             setIsUploadingPicture(false);
-    //             return;
-    //         }
-
-    //         const response = await fetch('http://localhost:8080/user/profile-picture', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Authorization': `Bearer ${token}`,
-    //             },
-    //             body: formData
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error('Failed to upload profile picture');
-    //         }
-
-    //         const data = await response.json();
-    //         console.log('Profile picture updated:', data);
-
-    //         // Update profile picture URL in state
-    //         const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
-    //         setEditedProfile({
-    //             ...editedProfile,
-    //             profilePicture: profilePictureUrl
-    //         });
-
-    //     } catch (error) {
-    //         console.error('Error uploading profile picture:', error);
-    //         alert('Failed to upload profile picture');
-    //     } finally {
-    //         setIsUploadingPicture(false);
-    //     }
-    // };
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -485,14 +417,14 @@ const ProfilePage = () => {
                     )}
 
                     <h2>Community Summary</h2>
-                    <p><strong>Total Reviews:</strong> {profile.gameReviews.length}</p>
+                    <p><strong>Total Comments:</strong> {profile.gameReviews.length}</p>
                     <p><strong>Total Teams:</strong> {profile.gameTeams.length}</p>
                 </div>
             </div>
 
             <div className="right-column">
                 <div className="review-summary">
-                    <h2>Game Reviews</h2>
+                    <h2>Game Comments</h2>
                     <div className="game-review-container">
                         {profile.gameReviews.map((game) => (
                             <div key={game.id} className="game-review-card">
@@ -503,8 +435,7 @@ const ProfilePage = () => {
                                 />
                                 <div>
                                     <h3>{game.name}</h3>
-                                    <p><strong>Rating:</strong> {game.rating}/5</p>
-                                    <p><strong>Review:</strong> {game.review}</p>
+                                    <p><strong>Comment:</strong> {game.content}</p>
                                 </div>
                             </div>
                         ))}
@@ -512,17 +443,13 @@ const ProfilePage = () => {
                 </div>
                 <div className="community-summary">
                     <h2>My Teams</h2>
-                    <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre>
+                    {/* <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre> */}
 
                     <div className="team-container">
                         {profile.gameTeams.map((team) => (
                             <button key={team.id} className="team-card"
                                 onClick={() => navigate(`/team/${team.id}`)}>
-                                <img
-                                    src={team.img}
-                                    alt={`${team.name} image`}
-                                    className="team-image"
-                                />
+                                {team.img && <img src={team.img} alt={team.gameName} className="team-image" />}
                                 <div>
                                     <h3>{team.name}</h3>
                                     <p><strong>Description:</strong> {team.description}</p>
