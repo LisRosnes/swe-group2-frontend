@@ -60,24 +60,49 @@ const ProfilePage = () => {
                 'Authorization': `Bearer ${token}`,
             }
 
-            const [meRes, reviewsRes, teamsRes] = await Promise.all([
+            const [meRes, reviewsRes] = await Promise.all([
                 fetch('http://localhost:8080/user/me', { headers }),
-                fetch('http://localhost:8080/game_info/comments/me', { headers }),
-                fetch('http://localhost:8080/teams/me',   { headers }),
+                fetch('http://localhost:8080/game_info/comments/me', { headers })
+                // fetch('http://localhost:8080/teams/find',   { headers }),
                 ]);
 
-            if (!meRes.ok || !reviewsRes.ok || !teamsRes.ok) {
+            if (!meRes.ok || !reviewsRes.ok) {
                 throw new Error('Failed to fetch profile data');
             }
-
-            
-            // console.log('teamsRes status:', teamsRes.status, '– headers:', teamsRes.headers);
-            
-
             const meData = await meRes.json();
             const reviewsData = await reviewsRes.json();
-            const teamsData = await teamsRes.json();
-            // console.log('raw teamsData:', teamsData);
+
+            
+                  // Attempt to fetch all teams, but don’t abort on failure
+            let allTeams = [];
+            try {
+                const teamsRes = await fetch('http://localhost:8080/teams/find', { headers });
+                if (teamsRes.ok) {
+                allTeams = await teamsRes.json();
+                } else {
+                console.warn('Could not fetch teams (status:', teamsRes.status, ')');
+                }
+            } catch (teamsErr) {
+                console.error('Teams fetch error:', teamsErr);
+            }
+
+            // Filter teams by membership
+            const myTeams = allTeams.filter(team => {
+                if (!team.memberIds) return false;
+                const members = team.memberIds.split(',').map(id => Number(id.trim()));
+                return members.includes(meData.id);
+            });
+        
+              // Map to UI-friendly object
+            const gameTeams = myTeams.map(team => ({
+                id: team.id,
+                name: team.teamName,
+                description: team.description,
+                members: team.memberIds.split(',').map(id => Number(id)),
+                fromTime: team.fromTime,
+                toTime: team.toTime
+            }));
+              
 
             const userData = {
                 id: meData.id,
@@ -99,19 +124,7 @@ const ProfilePage = () => {
                     content: review.content,
                     timestamp: review.timestamp,
                 })),
-                gameTeams: teamsData.map(teamData => ({
-                    id: teamData.team.id,
-                    name: teamData.team.teamName || 'Unnamed Team',
-                    description: teamData.team.description || 'No description available',
-                    members: teamData.members.map(member => member.username || 'Unknown User'),
-                    gameId: teamData.team.gameId,
-                    teamSize: teamData.team.teamSize,
-                    fromTime: teamData.team.fromTime,
-                    toTime: teamData.team.toTime
-                    // img: teamData.team.teamImage 
-                    //     ? `http://localhost:8080${teamData.team.teamImage}` 
-                    //     : "https://ui-avatars.com/api/?name=Team&background=random"
-                }))
+                gameTeams
             };
             setProfile(userData);
             setEditedProfile({...userData});
@@ -236,53 +249,46 @@ const ProfilePage = () => {
     //     }
     // };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (!file || !file.type.match('image.*')) {
-          return alert('Please pick an image file');
-        }
-      
+        if (!file) return alert('Please select an image file');
+    
+        const token = localStorage.getItem('authToken');
+        if (!token) return alert('Not authenticated');
+    
+        const formData = new FormData();
+        formData.append('file', file); // matches @RequestParam("file")
+    
         setIsUploadingPicture(true);
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          // reader.result is like "data:image/png;base64,iVBORw0KGgo…"
-          const [_, base64] = reader.result.split(',');
-      
-          try {
-            const token = localStorage.getItem('authToken');
-            if (!token) throw new Error('Not authenticated');
-      
-            // send JSON { file: "<base64>" }
-            console.log('→ sending to /user/avatar with token:', token);
+        try {
+          const res = await fetch('http://localhost:8080/user/avatar', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData,
+            // credentials: 'include' // if using cookies
+          });
 
-            const res = await fetch('http://localhost:8080/user/avatar', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ file: base64 })
-            });
-      
-            const text = await res.text();
-            if (!res.ok) throw new Error(text);
-      
-            // assume JSON `{ avatar: "/uploads/123.png" }`
-            let data;
-            try { data = JSON.parse(text); } catch { data = { avatar: text }; }
-      
-            const avatarUrl = `http://localhost:8080${data.avatar}`;
-            setEditedProfile(p => ({ ...p, avatar: avatarUrl }));
-          } catch (err) {
-            console.error(err);
+            const text = (await res.text()).trim();
+            console.log('Upload response:', text);
+
+            if (!res.ok) {
+            throw new Error(`Upload failed: ${text}`);
+            }
+
+            // build the public URL from the filename your server returned
+            // adjust "/uploads/" to whatever your static-serve path is
+            const avatarUrl = `http://localhost:8080/avatar/${text}`;
+
+            setEditedProfile(p => ({ ...p, profilePicture: avatarUrl }));
+        } catch (err) {
+            console.error('Upload failed:', err);
             alert(`Upload failed: ${err.message}`);
-          } finally {
+        } finally {
             setIsUploadingPicture(false);
-          }
+        }
         };
-      
-        reader.readAsDataURL(file);
-      };
       
 
     // Function to save profile changes
@@ -307,6 +313,7 @@ const ProfilePage = () => {
                 favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
                 createdAt: profile.createdAt,
                 updatedAt: new Date().toISOString(),
+                avatar: editedProfile.profilePicture ? editedProfile.profilePicture.replace('http://localhost:8080', '') : null,
               };
 
 
