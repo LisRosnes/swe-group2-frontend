@@ -11,7 +11,7 @@ function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const registerEndpoint = 'http://10.44.140.30:8080/user/register';
+  const registerEndpoint = 'http://localhost:8080/user/register';
 
 
   const handleChange = (e) => {
@@ -45,22 +45,20 @@ function Register() {
           email: formData.email
         })
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+
+      if (response.ok) {
+        navigate('/login');
+      } else {
+        const text = await response.text();
+        if (response.status === 400 || /duplicate/i.test(text)) {
+          setError('Username or email already exists');
+        } else{
+          setError('Registration failed. Please try again.');
+        }
       }
-
-
-      navigate('/login');
 
     } catch (err) {
-      const response = await fetch(registerEndpoint, { /* … */ });
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Server error response:", text);
-        throw new Error("Registration failed: " + text);
-      }
-
-      console.error('Registration error:', err);
+      console.error('Network error:', err);
       setError('Registration failed. Please check your connection and try again.');
     } finally {
       setLoading(false);
