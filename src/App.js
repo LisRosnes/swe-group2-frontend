@@ -66,7 +66,7 @@ function App() {
         return;
       }
       try {
-        const response = await fetch(`http://10.44.140.30:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
+        const response = await fetch(`http://localhost:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -175,9 +175,9 @@ function App() {
         <div className="header-buttons">
           <Notifications />
 
-          <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
+          {/* <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button> */}
 
-          <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button>
+          {/* <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button> */}
 
           {isLoggedIn ? (
             <>

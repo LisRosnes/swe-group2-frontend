@@ -76,7 +76,7 @@ const ProfilePage = () => {
             } else {
                 console.error('Failed to fetch teams data');
             }
-            let gameTeams = await Promise.all(
+                let gameTeams = await Promise.all(
                 teamsData.map(async team => {
                   // Fetch game details for team
                   let gameImg = null;
@@ -242,7 +242,7 @@ const ProfilePage = () => {
                 return;
             }
 
-            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
+            const response = await fetch('http://localhost:8080/user/profile-picture', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -258,7 +258,7 @@ const ProfilePage = () => {
             console.log('Profile picture updated:', data);
 
             // Update profile picture URL in state
-            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
+            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
             setEditedProfile({
                 ...editedProfile,
                 profilePicture: profilePictureUrl
@@ -300,7 +300,7 @@ const ProfilePage = () => {
 
             console.log("Payload to send:", payload);
 
-            const response = await fetch('http://10.44.140.30:8080/user/edit', {
+            const response = await fetch('http://localhost:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
