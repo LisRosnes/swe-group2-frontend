@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './BuildTeam.css';
-import { useLocation } from 'react-router-dom';
 
 const BuildTeam = () => {
   const navigate = useNavigate();
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const location = useLocation();
+  const { gameId } = location.state || {};
 
-  const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
+  const RAWG_API_KEY = 'e237edcd3f4b40a8a534b21ea8999527';
+
+  const [game, setGame] = useState({
+    id: '',
+    name: '',
+    background_image: ''
+  });
 
   const [formData, setFormData] = useState({
-    gameId: '',
     teamName: '',
     teamSize: 3,
     description: '',
@@ -22,45 +24,34 @@ const BuildTeam = () => {
     endTime: '18:00'
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    const fetchGames = async () => {
+    if (!gameId) return;
+    const fetchGame = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-          setError('You must be logged in to create a team');
-          return;
-        }
-    
+        setLoading(true);
         const response = await fetch(
-          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=1&page_size=20`
+          `https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`
         );
-        if (!response.ok) throw new Error('Failed to fetch games');
-    
+        if (!response.ok) throw new Error('Failed to fetch game data');
         const data = await response.json();
-        const formattedGames = data.results.map(game => ({
-          id: game.id,
-          name: game.name,
-          background_image: game.background_image
-        }));
-    
-        setGames(formattedGames); // ✅ 把游戏列表放到 state
-    
-        if (formattedGames.length > 0) {
-          const selectedGameId = location.state?.gameId;
-          const initialGameId = selectedGameId || formattedGames[0].id;
-    
-          setFormData(prev => ({
-            ...prev,
-            gameId: initialGameId
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching games:', error);
-        setError('Failed to load games. Please try again.');
+        setGame({
+          id: data.id,
+          name: data.name,
+          background_image: data.background_image
+        });
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load game details.');
+      } finally {
+        setLoading(false);
       }
-    };    
-    fetchGames();
-  }, [RAWG_API_KEY]);
+    };
+    fetchGame();
+  }, [gameId]);
+
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -72,8 +63,8 @@ const BuildTeam = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: name === 'teamSize' ? parseInt(value, 10) : value
     }));
   };
@@ -85,19 +76,26 @@ const BuildTeam = () => {
     return end > start;
   };
 
+  const getDateTimeString = (dayOfWeek, timeString) => {
+    const days = { monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 0 };
+    const now = new Date();
+    const currentDay = now.getDay();
+    const selectedDay = days[dayOfWeek];
+    const daysToAdd = (selectedDay + 7 - currentDay) % 7;
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + daysToAdd);
+    const [hours, minutes] = timeString.split(':').map(Number);
+    targetDate.setHours(hours, minutes, 0, 0);
+    return targetDate.toISOString();
+  };
+
   const saveToLocalStorage = (teamData, username) => {
     try {
-      const existingTeams = JSON.parse(localStorage.getItem('teams') || '[]');
-      const newTeam = {
-        id: `team-${Date.now()}`,
-        ...teamData,
-        members: [username],
-        createdAt: new Date().toISOString()
-      };
-      localStorage.setItem('teams', JSON.stringify([...existingTeams, newTeam]));
+      const existing = JSON.parse(localStorage.getItem('teams') || '[]');
+      const newTeam = { id: `team-${Date.now()}`, ...teamData, members: [username], createdAt: new Date().toISOString() };
+      localStorage.setItem('teams', JSON.stringify([...existing, newTeam]));
       return true;
-    } catch (error) {
-      console.error('Error saving team to local storage:', error);
+    } catch {
       return false;
     }
   };
@@ -113,60 +111,55 @@ const BuildTeam = () => {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        setError('You must be logged in to create a team');
         navigate('/login');
         return;
       }
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      const username = userData.username || 'Anonymous';
-      const selectedGame = games.find(
-        game => game.id.toString() === formData.gameId.toString()
-      );
-      const formattedAvailability = `${formData.dayOfWeek.charAt(0).toUpperCase() + formData.dayOfWeek.slice(1)} ${formData.startTime} - ${formData.endTime}`;
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const username = user.username || 'Anonymous';
+
+      const fromTime = getDateTimeString(formData.dayOfWeek, formData.startTime);
+      const toTime = getDateTimeString(formData.dayOfWeek, formData.endTime);
+      const formattedAvailability = `${formData.dayOfWeek.charAt(0).toUpperCase()}${formData.dayOfWeek.slice(1)} ${formData.startTime} - ${formData.endTime}`;
+
       const teamData = {
-        gameId: formData.gameId,
-        gameName: selectedGame ? selectedGame.name : '',
-        gameImage: selectedGame ? selectedGame.background_image : '',
+        gameId,
+        gameName: game.name,
+        gameImage: game.background_image,
         teamName: formData.teamName,
         teamSize: formData.teamSize,
         description: formData.description,
         availabilityTime: formattedAvailability,
+        fromTime,
+        toTime,
+        createdAt: new Date().toISOString(),
         schedule: {
           dayOfWeek: formData.dayOfWeek,
           startTime: formData.startTime,
           endTime: formData.endTime
         }
       };
-      try {
-        const response = await fetch('http://localhost:8080/teams/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(teamData)
-        });
-        if (response.ok) {
-          saveToLocalStorage(teamData, username);
-          alert('Team created successfully!');
-          navigate('/');
-          return;
-        } else {
-          console.warn('Server request failed with status:', response.status);
-          throw new Error('Server request failed');
-        }
-      } catch (error) {
-        const localSaveSuccess = saveToLocalStorage(teamData, username);
-        if (localSaveSuccess) {
-          alert('Team saved locally. Server connection might be unavailable.');
-          navigate('/');
-        } else {
-          setError('Failed to save team. Please try again.');
-        }
+
+      const response = await fetch('http://localhost:8080/teams/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(teamData)
+      });
+
+      if (response.ok) {
+        saveToLocalStorage(teamData, username);
+        alert('Team created successfully!');
+        navigate('/');
+      } else {
+        throw new Error('Server request failed');
       }
-    } catch (error) {
-      console.error('Error creating team:', error);
-      setError(error.message || 'Failed to create team. Please try again.');
+    } catch (err) {
+      console.error(err);
+      if (saveToLocalStorage) {
+        alert('Saved locally.');
+        navigate('/');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -184,55 +177,26 @@ const BuildTeam = () => {
 
   return (
     <div className="build-team-container">
-      <div className="background-overlay"></div>
       <h1>Build Team Page</h1>
-      <button className="back-button" onClick={() => navigate('/')}>
-        Back
-      </button>
+      <button className="back-button" onClick={() => navigate('/')}>Back</button>
       {error && <div className="error-message">{error}</div>}
+      {loading || !game.id ? (
+        <p>Loading game details...</p>
+      ) : (
+        <div className="selected-game-preview">
+          <h3>Game: {game.name}</h3>
+          {game.background_image && <img src={game.background_image} alt={game.name} />}
+        </div>
+      )}
       <form className="team-form" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="gameId">Game:</label>
-          <select
-            id="gameId"
-            name="gameId"
-            value={formData.gameId}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select a game</option>
-            {games.map(game => (
-              <option key={game.id} value={game.id}>
-                {game.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
           <label htmlFor="teamName">Team Name:</label>
-          <input
-            type="text"
-            id="teamName"
-            name="teamName"
-            value={formData.teamName}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" id="teamName" name="teamName" value={formData.teamName} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label htmlFor="teamSize">Team Size:</label>
-          <select
-            id="teamSize"
-            name="teamSize"
-            value={formData.teamSize}
-            onChange={handleChange}
-            required
-          >
-            <option value="2">2 Players</option>
-            <option value="3">3 Players</option>
-            <option value="4">4 Players</option>
-            <option value="5">5 Players</option>
-            <option value="6">6 Players</option>
+          <select id="teamSize" name="teamSize" value={formData.teamSize} onChange={handleChange} required>
+            {[2,3,4,5,6].map(n => <option key={n} value={n}>{n} Players</option>)}
           </select>
         </div>
         <div className="form-group schedule-section">
@@ -240,93 +204,26 @@ const BuildTeam = () => {
           <div className="schedule-inputs">
             <div className="schedule-item">
               <label htmlFor="dayOfWeek">Day of Week:</label>
-              <select
-                id="dayOfWeek"
-                name="dayOfWeek"
-                value={formData.dayOfWeek}
-                onChange={handleChange}
-                required
-              >
-                {weekdays.map(day => (
-                  <option key={day.value} value={day.value}>
-                    {day.label}
-                  </option>
-                ))}
+              <select id="dayOfWeek" name="dayOfWeek" value={formData.dayOfWeek} onChange={handleChange} required>
+                {weekdays.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
               </select>
             </div>
             <div className="schedule-item">
               <label htmlFor="startTime">Start Time:</label>
-              <input
-                type="time"
-                id="startTime"
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleChange}
-                required
-              />
+              <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} required />
             </div>
             <div className="schedule-item">
               <label htmlFor="endTime">End Time:</label>
-              <input
-                type="time"
-                id="endTime"
-                name="endTime"
-                value={formData.endTime}
-                onChange={handleChange}
-                required
-              />
+              <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} required />
             </div>
-          </div>
-          <div className="selected-time-display">
-            Selected time:{' '}
-            <strong>
-              {weekdays.find(day => day.value === formData.dayOfWeek)?.label}{' '}
-              {formData.startTime} - {formData.endTime}
-            </strong>
           </div>
         </div>
         <div className="form-group">
-          <label htmlFor="description">
-            Description: (team goals, requirements)
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows="4"
-            required
-          />
+          <label htmlFor="description">Description:</label>
+          <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows="4" required />
         </div>
-        <button type="submit" className="create-team-button" disabled={loading}>
-          {loading ? 'Creating...' : 'Create Team'}
-        </button>
+        <button type="submit" className="create-team-button" disabled={loading}>Create Team</button>
       </form>
-      {formData.gameId && games.length > 0 && (
-        <div className="selected-game-preview">
-          <h3>Selected Game:</h3>
-          {(() => {
-            const selectedGame = games.find(
-              game => game.id.toString() === formData.gameId.toString()
-            );
-            if (selectedGame) {
-              return (
-                <div>
-                  <h4>{selectedGame.name}</h4>
-                  {selectedGame.background_image && (
-                    <img
-                      src={selectedGame.background_image}
-                      alt={selectedGame.name}
-                      style={{ maxWidth: '300px', maxHeight: '200px' }}
-                    />
-                  )}
-                </div>
-              );
-            }
-            return null;
-          })()}
-        </div>
-      )}
     </div>
   );
 };
