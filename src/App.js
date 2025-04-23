@@ -273,15 +273,6 @@ function App() {
               </div>
             ))}
           </div>
-          {/* Manually test TeamInfo route */}
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-            <Link to="/team/1" style={{ fontWeight: 'bold', color: '#007bff' }}>
-              🔍 Click here to test Team Info for team 1
-            </Link>
-            {/* <Link to="/team/team-1" style={{ fontWeight: 'bold', color: '#007bff' }}>
-                🔍 Click here to test Team Info for team-1
-              </Link> */}
-          </div>
         </>
       )}
     </div>
