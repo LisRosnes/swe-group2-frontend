@@ -64,17 +64,20 @@ export default function TeamInfo() {
       return;
     }
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/teams/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({ id: Number(teamId) })
-      });
 
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/teams/apply/${encodeURIComponent(teamId)}`, 
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
+        }
+      );
+      
       if (!res.ok) {
         throw new Error(`Server responded ${res.status}`);
       }
