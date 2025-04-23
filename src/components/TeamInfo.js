@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './TeamInfo.css';
 
-const BACKEND_URL = 'http://10.44.140.30:8080';
+const BACKEND_URL = 'http://localhost:8080';
 
 export default function TeamInfo() {
   const { teamId } = useParams();
@@ -13,6 +13,30 @@ export default function TeamInfo() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [requesting, setRequesting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/user/me`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUserId(data.id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch current user', err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  const isMember = currentUserId != null && members.some(m => m.id === currentUserId);
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -29,21 +53,17 @@ export default function TeamInfo() {
       try {
         const res = await fetch(`${BACKEND_URL}/teams/${teamId}`, {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
           credentials: 'include'
         });
 
-        if (!res.ok) {
-          throw new Error(`Server responded ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
 
         const data = await res.json();
-        setTeam(data.team);
+        setTeam(data.team || data);
         setMembers(data.members || []);
       } catch (err) {
-        console.error('Fetch failed, falling back to localStorage', err);
+        console.error('Fetch failed', err);
         setError('Failed to load team data.');
       } finally {
         setLoading(false);
@@ -75,16 +95,49 @@ export default function TeamInfo() {
         body: JSON.stringify({ id: Number(teamId) })
       });
 
-      if (!res.ok) {
-        throw new Error(`Server responded ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Server responded ${res.status}`);
 
       alert('Join request sent successfully!');
-
       window.location.reload();
     } catch (err) {
       console.error('Join failed', err);
       setError('Failed to join team.');
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    if (!window.confirm('Are you sure you want to leave this team?')) return;
+
+    setRequesting(true);
+    setError('');
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('You must be logged in to leave a team.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/teams/leave`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ id: Number(teamId) })
+      });
+
+      if (!res.ok) throw new Error(`Server responded ${res.status}`);
+
+      alert('You have left the team.');
+      navigate('/');
+    } catch (err) {
+      console.error('Leave failed', err);
+      setError('Failed to leave the team.');
     } finally {
       setRequesting(false);
     }
@@ -158,13 +211,23 @@ export default function TeamInfo() {
         {renderMembers()}
       </div>
 
-      <button
-        className="join-btn"
-        onClick={handleJoin}
-        disabled={requesting}
-      >
-        {requesting ? 'Requesting…' : 'Request to Join'}
-      </button>
+      {isMember ? (
+        <button
+          className="leave-btn"
+          onClick={handleLeave}
+          disabled={requesting}
+        >
+          {requesting ? 'Leaving…' : 'Leave Team'}
+        </button>
+      ) : (
+        <button
+          className="join-btn"
+          onClick={handleJoin}
+          disabled={requesting}
+        >
+          {requesting ? 'Requesting…' : 'Request to Join'}
+        </button>
+      )}
 
       {error && <p className="error">{error}</p>}
     </div>
