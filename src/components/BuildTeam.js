@@ -30,25 +30,25 @@ const BuildTeam = () => {
           setError('You must be logged in to create a team');
           return;
         }
-    
+
         const response = await fetch(
           `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&page=1&page_size=20`
         );
         if (!response.ok) throw new Error('Failed to fetch games');
-    
+
         const data = await response.json();
         const formattedGames = data.results.map(game => ({
           id: game.id,
           name: game.name,
           background_image: game.background_image
         }));
-    
+
         setGames(formattedGames); // ✅ 把游戏列表放到 state
-    
+
         if (formattedGames.length > 0) {
           const selectedGameId = location.state?.gameId;
           const initialGameId = selectedGameId || formattedGames[0].id;
-    
+
           setFormData(prev => ({
             ...prev,
             gameId: initialGameId
@@ -58,7 +58,7 @@ const BuildTeam = () => {
         console.error('Error fetching games:', error);
         setError('Failed to load games. Please try again.');
       }
-    };    
+    };
     fetchGames();
   }, [RAWG_API_KEY]);
 
@@ -138,7 +138,7 @@ const BuildTeam = () => {
         }
       };
       try {
-        const response = await fetch('http://localhost:8080/teams/create', {
+        const response = await fetch('http://10.44.140.30:8080/teams/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

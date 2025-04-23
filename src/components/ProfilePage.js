@@ -61,10 +61,10 @@ const ProfilePage = () => {
             }
 
             const [meRes, reviewsRes, teamsRes] = await Promise.all([
-                fetch('http://localhost:8080/user/me', { headers }),
-                fetch('http://localhost:8080/game_info/comments/me', { headers }),
-                fetch('http://localhost:8080/teams/me',   { headers }),
-                ]);
+                fetch('http://10.44.140.30:8080/user/me', { headers }),
+                fetch('http://10.44.140.30:8080/game_info/comments/me', { headers }),
+                fetch('http://10.44.140.30:8080/teams/me', { headers }),
+            ]);
 
             if (!meRes.ok || !reviewsRes.ok || !teamsRes.ok) {
                 throw new Error('Failed to fetch profile data');
@@ -83,8 +83,8 @@ const ProfilePage = () => {
                 phone: meData.phone || '',
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
-                profilePicture: meData.profilePicture ? `http://localhost:8080${meData.profilePicture}` : null,
-                
+                profilePicture: meData.profilePicture ? `http://10.44.140.30:8080${meData.profilePicture}` : null,
+
                 gameReviews: reviewsData.map(review => ({
                     id: review.id,
                     gameID: review.gameID,
@@ -102,13 +102,13 @@ const ProfilePage = () => {
                     teamSize: teamData.team.teamSize,
                     fromTime: teamData.team.fromTime,
                     toTime: teamData.team.toTime,
-                    img: teamData.team.teamImage 
-                        ? `http://localhost:8080${teamData.team.teamImage}` 
+                    img: teamData.team.teamImage
+                        ? `http://10.44.140.30:8080${teamData.team.teamImage}`
                         : "https://ui-avatars.com/api/?name=Team&background=random"
                 }))
             };
             setProfile(userData);
-            setEditedProfile({...userData});
+            setEditedProfile({ ...userData });
             setLoading(false);
 
         } catch (error) {
@@ -200,7 +200,7 @@ const ProfilePage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8080/user/profile-picture', {
+            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -216,7 +216,7 @@ const ProfilePage = () => {
             console.log('Profile picture updated:', data);
 
             // Update profile picture URL in state
-            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
+            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
             setEditedProfile({
                 ...editedProfile,
                 profilePicture: profilePictureUrl
@@ -238,7 +238,7 @@ const ProfilePage = () => {
                 setError("Authentication token not found. Please log in.");
                 return;
             }
-            
+
             // Log the current profile before update
             console.log('Current profile before update:', profile);
 
@@ -252,12 +252,12 @@ const ProfilePage = () => {
                 favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
                 createdAt: profile.createdAt,
                 updatedAt: new Date().toISOString(),
-              };
+            };
 
 
             console.log("Payload to send:", payload);
-                      
-            const response = await fetch('http://localhost:8080/user/edit', {
+
+            const response = await fetch('http://10.44.140.30:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -270,11 +270,11 @@ const ProfilePage = () => {
                 await fetchUserProfile();
                 setIsEditing(false);
                 alert("Update success");
-              } else {
+            } else {
                 const errText = await response.text();
                 throw new Error(errText);
-              }
-              
+            }
+
         } catch (error) {
             console.error('Error saving profile changes:', error);
         }
@@ -335,7 +335,7 @@ const ProfilePage = () => {
     if (error) {
         return <div className="profile-page">Error: {error}</div>;
     }
-    
+
     // If profile is null, don't try to render the profile content
     if (!profile) {
         return <div className="profile-page">No profile data available</div>;

@@ -170,3 +170,71 @@
     transform: rotate(360deg);
   }
 }
+
+.notif-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notif-btn {
+  position: relative;
+  font-size: 1.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.red-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: red;
+}
+
+.notif-dropdown {
+  position: absolute;
+  right: 0;
+  top: 130%;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #313030;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .15);
+  z-index: 1000;
+}
+
+.invite-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.invite-row:last-child {
+  border-bottom: none;
+}
+
+.invite-row .actions button {
+  margin-left: 4px;
+}
+
+.empty {
+  padding: 12px;
+  color: #0b0b0b;
+}
+
+.notif-dropdown,
+.invite-row span,
+.invite-row strong {
+  color: #000000;
+}
+
+.invite-row small {
+  color: #535252;
+}

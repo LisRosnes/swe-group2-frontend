@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import Notifications from './components/Notifications';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './logo.svg';
 
@@ -65,7 +66,7 @@ function App() {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
+        const response = await fetch(`http://10.44.140.30:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -172,6 +173,7 @@ function App() {
         </div>
 
         <div className="header-buttons">
+          <Notifications />
 
           <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
 
