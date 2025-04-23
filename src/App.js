@@ -175,9 +175,9 @@ function App() {
         <div className="header-buttons">
           <Notifications />
 
-          <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button>
+          {/* <button onClick={handleBuildTeamClick} className="build-team-btn">Build Team</button> */}
 
-          <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button>
+          {/* <button onClick={handleGameInfoClick} className="game-info-btn">Game Info</button> */}
 
           {isLoggedIn ? (
             <>

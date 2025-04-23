@@ -67,6 +67,7 @@ const ProfilePage = () => {
 
 
             const teamsRes = await fetch('http://localhost:8080/teams/me', { headers });
+            console.log('Teams API response:', teamsRes);
             let teamsData = [];
             if (teamsRes.ok) {
                 const raw = await teamsRes.json();
@@ -75,7 +76,7 @@ const ProfilePage = () => {
             } else {
                 console.error('Failed to fetch teams data');
             }
-            const gameTeams = await Promise.all(
+            let gameTeams = await Promise.all(
                 teamsData.map(async team => {
                     // Fetch game details for team
                     let gameImg = null;
@@ -106,8 +107,33 @@ const ProfilePage = () => {
                         img: gameImg,
                         gameName,
                     };
-                })
-            );
+                }));
+            if (gameTeams.length === 0) {
+                const placeholderImg = "https://th.bing.com/th/id/OIP.Ul2f-MVmMh5E2lj45xIm6QHaEK?rs=1&pid=ImgDetMain";
+                gameTeams = [
+                    {
+                        id: 101,
+                        name: "Alpha Squad",
+                        description: "Our premier demonstration team",
+                        members: [1, 2, 3],
+                        fromTime: "2025-04-23T10:00:00.000Z",
+                        toTime: "2025-04-23T12:00:00.000Z",
+                        img: placeholderImg,
+                        gameName: "Demo Game A"
+                    },
+                    {
+                        id: 102,
+                        name: "Beta Crew",
+                        description: "Backup showcase group",
+                        members: [4, 5],
+                        fromTime: "2025-04-23T13:00:00.000Z",
+                        toTime: "2025-04-23T15:00:00.000Z",
+                        img: placeholderImg,
+                        gameName: "Demo Game B"
+                    }
+                ];
+            }
+
 
             const userData = {
                 id: meData.id,
