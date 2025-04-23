@@ -1,66 +1,76 @@
 import React, { useState, useEffect } from 'react';
 
-const Notifications = ({ token }) => {
-    const [notifications, setNotifications] = useState([]); // pending invites
-    const [hasNew, setHasNew] = useState(false); // red‑dot flag
-    const [showNotif, setShowNotif] = useState(false); // dropdown toggle
+const API = 'http://localhost:8080';
 
-    const fetchNotifications = async () => {
-        // TODO: GET /api/notifications (auth ‑> token)
-        // Dummy: random subset of 3 hard‑coded invites
-        const dummy = [
-            { id: 1, teamName: 'Diamond Dogs', inviterName: 'Eva' },
-            { id: 2, teamName: 'Night Howlers', inviterName: 'Sam' },
-            { id: 3, teamName: 'Pixel Pirates', inviterName: 'Jo' },
-        ];
-        const invites = dummy.filter(() => Math.random() < 0.5);
-        setNotifications(invites);
-        if (invites.length) setHasNew(true);
+const Notifications = () => {
+    const [requests, setRequests] = useState([]); // pending
+    const [hasNew, setHasNew] = useState(false); // red dot flag
+    const [open, setOpen] = useState(false); // dropdown toggle
+    const loadRequests = async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${API}/teams/my_team_request`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+
+            setRequests(data);
+            if (data.length) setHasNew(true);
+        } catch (err) {
+            console.error('Error loading team requests:', err);
+        }
     };
-
     useEffect(() => {
-        fetchNotifications(); // initial load
-        const id = setInterval(fetchNotifications, 20_000); // 20s poll
+        loadRequests();
+        const id = setInterval(loadRequests, 20_000);
         return () => clearInterval(id);
     }, []);
-    const handleAccept = async (id) => {
-        // TODO: POST /invitations/{id}/accept
-        setNotifications((prev) => prev.filter((inv) => inv.id !== id));
-    };
 
-    const handleReject = async (id) => {
-        // TODO: DELETE /invitations/{id}
-        setNotifications((prev) => prev.filter((inv) => inv.id !== id));
-    };
+    const actOn = async (action, joinTeamId) => {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
 
+        try {
+            await fetch(`${API}/teams/${action}/${joinTeamId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
+            });
+            setRequests((prev) => prev.filter((r) => r.joinTeam.id !== joinTeamId));
+        } catch (err) {
+            console.error(`Could not ${action} request ${joinTeamId}:`, err);
+        }
+    };
     return (
         <div className="notif-wrapper">
             <button
                 className="notif-btn"
-                onClick={() => {
-                    setShowNotif((prev) => !prev);
-                    setHasNew(false); // mark as seen when opened
-                }}
+                onClick={() => { setOpen(!open); setHasNew(false); }}
+                title="Team invitations"
             >
-                🔔
-                {hasNew && <span className="red-dot" />}
+                🔔 {hasNew && <span className="red-dot" />}
             </button>
 
-            {showNotif && (
+            {open && (
                 <div className="notif-dropdown">
-                    {notifications.length === 0 ? (
+                    {requests.length === 0 ? (
                         <p className="empty">No invitations right now.</p>
                     ) : (
-                        notifications.map((inv) => (
-                            <div className="invite-row" key={inv.id}>
+                        requests.map((req) => (
+                            <div key={req.joinTeam.id} className="invite-row">
                                 <span>
-                                    <strong>{inv.teamName}</strong>
-                                    <br />
-                                    <small>invited by {inv.inviterName}</small>
+                                    <strong>{req.team?.teamName ?? 'Unnamed Team'}</strong><br />
+                                    <small>requested by {req.user?.username ?? 'Unknown'}</small>
                                 </span>
                                 <div className="actions">
-                                    <button onClick={() => handleAccept(inv.id)}>Accept</button>
-                                    <button onClick={() => handleReject(inv.id)}>Reject</button>
+                                    <button onClick={() => actOn('approve', req.joinTeam.id)}>Accept</button>
+                                    <button onClick={() => actOn('reject', req.joinTeam.id)}>Reject</button>
                                 </div>
                             </div>
                         ))

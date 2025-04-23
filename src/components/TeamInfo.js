@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './TeamInfo.css';
 
-const BACKEND_URL = 'http://10.44.140.30:8080';
+const BACKEND_URL = 'http://localhost:8080';
 
 export default function TeamInfo() {
   const { teamId } = useParams();
@@ -67,7 +67,7 @@ export default function TeamInfo() {
 
     try {
       const res = await fetch(
-        `${BACKEND_URL}/teams/apply/${encodeURIComponent(teamId)}`, 
+        `${BACKEND_URL}/teams/apply/${encodeURIComponent(teamId)}`,
         {
           method: 'POST',
           headers: {
@@ -77,7 +77,7 @@ export default function TeamInfo() {
           credentials: 'include',
         }
       );
-      
+
       if (!res.ok) {
         throw new Error(`Server responded ${res.status}`);
       }

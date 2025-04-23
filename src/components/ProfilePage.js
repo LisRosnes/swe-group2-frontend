@@ -38,7 +38,7 @@ const ProfilePage = () => {
                 fetch('http://localhost:8080/user/me', { headers }),
                 fetch('http://localhost:8080/game_info/comments/me', { headers })
                 // fetch('http://localhost:8080/teams/find',   { headers }),
-                ]);
+            ]);
 
             if (!meRes.ok || !commentsRes.ok) {
                 throw new Error('Failed to fetch profile data');
@@ -49,21 +49,21 @@ const ProfilePage = () => {
 
             const enrichedComments = await Promise.all(
                 commentsData.map(async comment => {
-                  const gameRes = await fetch(
-                    `http://localhost:8080/game_info/${comment.gameId}`,
-                    { headers }
-                  );
-                  const gameData = gameRes.ok ? await gameRes.json() : {};
-                  return {
-                    id:        comment.id,
-                    gameId:    comment.gameId,
-                    content:   comment.content,
-                    timestamp: comment.timestamp,
-                    name:      gameData.name,
-                    img:       gameData.background_image
-                  };
+                    const gameRes = await fetch(
+                        `http://localhost:8080/game_info/${comment.gameId}`,
+                        { headers }
+                    );
+                    const gameData = gameRes.ok ? await gameRes.json() : {};
+                    return {
+                        id: comment.id,
+                        gameId: comment.gameId,
+                        content: comment.content,
+                        timestamp: comment.timestamp,
+                        name: gameData.name,
+                        img: gameData.background_image
+                    };
                 })
-              );
+            );
 
 
             const teamsRes = await fetch('http://localhost:8080/teams/me', { headers });
@@ -77,38 +77,38 @@ const ProfilePage = () => {
             }
             const gameTeams = await Promise.all(
                 teamsData.map(async team => {
-                  // Fetch game details for team
-                  let gameImg = null;
-                  let gameName = '';
-                  try {
-                    const gameRes = await fetch(
-                      `http://localhost:8080/game_info/${team.gameId}`,
-                      { headers }
-                    );
-                    if (gameRes.ok) {
-                      const gameData = await gameRes.json();
-                      gameImg = gameData.background_image;
-                      gameName = gameData.name;
+                    // Fetch game details for team
+                    let gameImg = null;
+                    let gameName = '';
+                    try {
+                        const gameRes = await fetch(
+                            `http://localhost:8080/game_info/${team.gameId}`,
+                            { headers }
+                        );
+                        if (gameRes.ok) {
+                            const gameData = await gameRes.json();
+                            gameImg = gameData.background_image;
+                            gameName = gameData.name;
+                        }
+                    } catch (err) {
+                        console.warn('Could not fetch game info for team', team.id, err);
                     }
-                  } catch (err) {
-                    console.warn('Could not fetch game info for team', team.id, err);
-                  }
-        
-                  return {
-                    id: team.id,
-                    name: team.teamName,
-                    description: team.description,
-                    members: team.memberIds
-                      ? team.memberIds.split(',').map(idStr => Number(idStr.trim()))
-                      : [],
-                    fromTime: team.fromTime,
-                    toTime: team.toTime,
-                    img: gameImg,
-                    gameName,
-                  };
+
+                    return {
+                        id: team.id,
+                        name: team.teamName,
+                        description: team.description,
+                        members: team.memberIds
+                            ? team.memberIds.split(',').map(idStr => Number(idStr.trim()))
+                            : [],
+                        fromTime: team.fromTime,
+                        toTime: team.toTime,
+                        img: gameImg,
+                        gameName,
+                    };
                 })
-              );         
-              
+            );
+
             const userData = {
                 id: meData.id,
                 firstName: meData.name ? meData.name.split(' ')[0] || '' : '',  // Extract first name from name
@@ -216,7 +216,7 @@ const ProfilePage = () => {
                 return;
             }
 
-            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
+            const response = await fetch('http://localhost:8080/user/profile-picture', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -232,7 +232,7 @@ const ProfilePage = () => {
             console.log('Profile picture updated:', data);
 
             // Update profile picture URL in state
-            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
+            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
             setEditedProfile({
                 ...editedProfile,
                 profilePicture: profilePictureUrl
@@ -274,7 +274,7 @@ const ProfilePage = () => {
 
             console.log("Payload to send:", payload);
 
-            const response = await fetch('http://10.44.140.30:8080/user/edit', {
+            const response = await fetch('http://localhost:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
