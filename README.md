@@ -33,9 +33,13 @@ Our web application provides a comprehensive platform for gamers to search, view
    ```
 
 4. Register and log in:
-   If this page is not working, you may need to change the port on the Login and Register page to connect properly to the backend..
+   If this page is not working, you may need to change the port on the Login and Register page to connect properly to the backend.
 
 5. You can now browse all the available pages.
+
+## Backend Connection
+
+Backend Server runs at: http://localhost:8080, and the address is used as it is in all the codes in frontend.
 
 - **Homepage Navigation:**  
   Click on a game image to enter the **Game Info** page.
