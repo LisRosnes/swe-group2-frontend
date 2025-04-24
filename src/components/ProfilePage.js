@@ -483,7 +483,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
                 <div className="community-summary">
-                    <h2>My Teams</h2>
+                    <h2>Created Teams</h2>
                     {/* <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre> */}
 
                     <div className="team-container">

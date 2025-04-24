@@ -122,7 +122,7 @@ const BuildTeam = () => {
       const formattedAvailability = `${formData.dayOfWeek.charAt(0).toUpperCase()}${formData.dayOfWeek.slice(1)} ${formData.startTime} - ${formData.endTime}`;
 
       const teamData = {
-        gameId,
+        gameId: gameId,
         gameName: game.name,
         gameImage: game.background_image,
         teamName: formData.teamName,
