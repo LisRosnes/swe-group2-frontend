@@ -75,11 +75,11 @@ Accessible via the Build Team button:
 - Features tools for team customization and management
 
 ### Profile Page
-*not currently connected to backend, just uses dummy data*
 When users click the Profile button:
 - Shows user's personal information
 - Displays history of user's comments and activities
 - Features a back button for easy navigation to previous pages
+- Edit profile, add info, avatar etc..
 
 ### Login/Register Page
 Accessed through the Login button:
