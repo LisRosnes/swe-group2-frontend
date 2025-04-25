@@ -1,16 +1,22 @@
 # Game Website Frontend
 Our web application provides a comprehensive platform for gamers to search, view, and interact with game information and build teams for multiplayer games.
 
-## 5 Tasks for sprint 4
-1. Enhance the visual layout of the home page (or any other page)
-2. Add user interaction feature (like or dislike another user's comment about a game)
-3. Connecting backend of the team info feature to the front end. 
-4. Add peer teammate grading feature
-5. Build user avatar feature
+## Prerequisites
 
 ## Getting Started
 
-1. Navigate to the project directory:
+1. Clone the repo 
+   ```bash
+   git clone https://github.com/LisRosnes/swe-group2-frontend.git
+   cd swe_group2_frontend
+   ```
+
+1. A RAWG API key for game details: https://rawg.io/apidocs
+   place in .env as
+   REACT_APP_RAWG_API_KEY=your_rawg_api_key_here
+
+
+2. Navigate to the project directory:
    ```bash
    cd your-project-directory
    ```
@@ -18,6 +24,7 @@ Our web application provides a comprehensive platform for gamers to search, view
 2. Install dependencies:
    ```bash
    npm install
+   npm install axios
    ```
 
 3. Start the development server:
@@ -26,9 +33,13 @@ Our web application provides a comprehensive platform for gamers to search, view
    ```
 
 4. Register and log in:
-   If this page is not working, you may need to change the port on the Login and Register page to connect properly to the backend..
+   If this page is not working, you may need to change the port on the Login and Register page to connect properly to the backend.
 
 5. You can now browse all the available pages.
+
+## Backend Connection
+
+Backend Server runs at: http://localhost:8080, and the address is used as it is in all the codes in frontend.
 
 - **Homepage Navigation:**  
   Click on a game image to enter the **Game Info** page.
@@ -68,11 +79,11 @@ Accessible via the Build Team button:
 - Features tools for team customization and management
 
 ### Profile Page
-*not currently connected to backend, just uses dummy data*
 When users click the Profile button:
 - Shows user's personal information
 - Displays history of user's comments and activities
 - Features a back button for easy navigation to previous pages
+- Edit profile, add info, avatar etc..
 
 ### Login/Register Page
 Accessed through the Login button:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProfilePage.css';
+import axios from 'axios';
 
 
 const ProfilePage = () => {
@@ -113,23 +114,13 @@ const ProfilePage = () => {
                 gameTeams = [
                     {
                         id: 101,
-                        name: "Alpha Squad",
-                        description: "Our premier demonstration team",
+                        name: "Create A Team to see it here",
+                        description: "Example team",
                         members: [1, 2, 3],
                         fromTime: "2025-04-23T10:00:00.000Z",
                         toTime: "2025-04-23T12:00:00.000Z",
                         img: placeholderImg,
                         gameName: "Demo Game A"
-                    },
-                    {
-                        id: 102,
-                        name: "Beta Crew",
-                        description: "Backup showcase group",
-                        members: [4, 5],
-                        fromTime: "2025-04-23T13:00:00.000Z",
-                        toTime: "2025-04-23T15:00:00.000Z",
-                        img: placeholderImg,
-                        gameName: "Demo Game B"
                     }
                 ];
             }
@@ -145,7 +136,7 @@ const ProfilePage = () => {
                 phone: meData.phone || '',
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
-                profilePicture: meData.avatar ? `http://10.44.140.30:8080${meData.avatar}` : null,
+                profilePicture: meData.avatar || null,
                 gameReviews: enrichedComments,
                 gameTeams
             };
@@ -206,71 +197,60 @@ const ProfilePage = () => {
         fileInputRef.current.click();
     };
 
-
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Client-side validation
-        if (!file.type.match('image.*')) {
-            alert('Please select an image file');
-            return;
-        }
+        // preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setEditedProfile(prev => ({
+                ...prev,
+                profilePicture: reader.result
+            }));
+        };
+        reader.readAsDataURL(file);
 
+        // now upload with Axios
         try {
             setIsUploadingPicture(true);
 
-            // Read the file as data URL for preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                // Update the local state with the image preview
-                setEditedProfile({
-                    ...editedProfile,
-                    profilePicture: reader.result
-                });
-            };
-            reader.readAsDataURL(file);
-
-            // Upload to server
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', file); // must match @RequestParam("file")
 
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                // If not logged in, just show the preview but don't upload
-                setIsUploadingPicture(false);
-                return;
-            }
+            // use the correct endpoint your backend exposes (here: /avatar)
+            const response = await axios.post(
+                'http://localhost:8080/user/avatar',
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    withCredentials: true  // if you need to send cookies/auth
+                }
+            );
 
-            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData
-            });
+            // response.data is just the path string, e.g. "/avatar/your_file_name.jpeg"
+            const returnedPath = response.data.trim();
+            const fullUrl = returnedPath.startsWith('http')
+                ? returnedPath
+                : `http://localhost:8080/avatar/${returnedPath}`;
 
-            if (!response.ok) {
-                throw new Error('Failed to upload profile picture');
-            }
+            // update state to point at the new hosted image
+            setEditedProfile(prev => ({
+                ...prev,
+                profilePicture: fullUrl
+            }));
 
-            const data = await response.json();
-            console.log('Profile picture updated:', data);
-
-            // Update profile picture URL in state
-            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
-            setEditedProfile({
-                ...editedProfile,
-                profilePicture: profilePictureUrl
-            });
-
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            alert('Failed to upload profile picture');
+        } catch (err) {
+            console.error('Avatar upload failed', err);
+            alert('Upload failed');
         } finally {
             setIsUploadingPicture(false);
         }
     };
+
 
 
     // Function to save profile changes
@@ -294,7 +274,9 @@ const ProfilePage = () => {
                 bio: editedProfile.bio,
                 favoriteGenres: editedProfile.favoriteGenres.filter(g => g).join(','),
                 createdAt: profile.createdAt,
-                updatedAt: new Date().toISOString(),
+                avatar: editedProfile.profilePicture,
+                updatedAt: new Date().toISOString()
+
             };
 
 
@@ -491,7 +473,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
                 <div className="community-summary">
-                    <h2>My Teams</h2>
+                    <h2>Created Teams</h2>
                     {/* <pre>{JSON.stringify(profile.gameTeams, null, 2)}</pre> */}
 
                     <div className="team-container">
