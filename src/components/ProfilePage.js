@@ -35,8 +35,8 @@ const ProfilePage = () => {
             }
 
             const [meRes, commentsRes] = await Promise.all([
-                fetch('http://localhost:8080/user/me', { headers }),
-                fetch('http://localhost:8080/game_info/comments/me', { headers })
+                fetch('http://10.44.140.30:8080/user/me', { headers }),
+                fetch('http://10.44.140.30:8080/game_info/comments/me', { headers })
                 // fetch('http://localhost:8080/teams/find',   { headers }),
             ]);
 
@@ -50,7 +50,7 @@ const ProfilePage = () => {
             const enrichedComments = await Promise.all(
                 commentsData.map(async comment => {
                     const gameRes = await fetch(
-                        `http://localhost:8080/game_info/${comment.gameId}`,
+                        `http://10.44.140.30:8080/game_info/${comment.gameId}`,
                         { headers }
                     );
                     const gameData = gameRes.ok ? await gameRes.json() : {};
@@ -66,7 +66,7 @@ const ProfilePage = () => {
             );
 
 
-            const teamsRes = await fetch('http://localhost:8080/teams/me', { headers });
+            const teamsRes = await fetch('http://10.44.140.30:8080/teams/me', { headers });
             console.log('Teams API response:', teamsRes);
             let teamsData = [];
             if (teamsRes.ok) {
@@ -83,7 +83,7 @@ const ProfilePage = () => {
                     let gameName = '';
                     try {
                         const gameRes = await fetch(
-                            `http://localhost:8080/game_info/${team.gameId}`,
+                            `http://10.44.140.30:8080/game_info/${team.gameId}`,
                             { headers }
                         );
                         if (gameRes.ok) {
@@ -145,7 +145,7 @@ const ProfilePage = () => {
                 phone: meData.phone || '',
                 bio: meData.bio || '',
                 favoriteGenres: meData.favoriteGenres ? meData.favoriteGenres.split(',') : [], // Assuming favoriteGenres is a comma-separated string
-                profilePicture: meData.avatar ? `http://localhost:8080${meData.avatar}` : null,
+                profilePicture: meData.avatar ? `http://10.44.140.30:8080${meData.avatar}` : null,
                 gameReviews: enrichedComments,
                 gameTeams
             };
@@ -242,7 +242,7 @@ const ProfilePage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8080/user/profile-picture', {
+            const response = await fetch('http://10.44.140.30:8080/user/profile-picture', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -258,7 +258,7 @@ const ProfilePage = () => {
             console.log('Profile picture updated:', data);
 
             // Update profile picture URL in state
-            const profilePictureUrl = `http://localhost:8080${data.profile_picture_url}`;
+            const profilePictureUrl = `http://10.44.140.30:8080${data.profile_picture_url}`;
             setEditedProfile({
                 ...editedProfile,
                 profilePicture: profilePictureUrl
@@ -300,7 +300,7 @@ const ProfilePage = () => {
 
             console.log("Payload to send:", payload);
 
-            const response = await fetch('http://localhost:8080/user/edit', {
+            const response = await fetch('http://10.44.140.30:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

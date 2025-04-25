@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API = 'http://localhost:8080';
+const API = 'http://10.44.140.30:8080';
 
 const Notifications = () => {
     const [requests, setRequests] = useState([]); // pending

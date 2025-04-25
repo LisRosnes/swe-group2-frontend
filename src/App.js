@@ -66,7 +66,7 @@ function App() {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
+        const response = await fetch(`http://10.44.140.30:8080/teams/search?keyword=${encodeURIComponent(searchValue)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

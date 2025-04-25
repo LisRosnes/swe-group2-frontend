@@ -139,7 +139,7 @@ const BuildTeam = () => {
         }
       };
 
-      const response = await fetch('http://localhost:8080/teams/create', {
+      const response = await fetch('http://10.44.140.30:8080/teams/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(teamData)
