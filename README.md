@@ -55,9 +55,12 @@ Backend Server runs at: http://localhost:8080, and the address is used as it is 
 
 ### Home Page
 The main page of our application serves as the central hub with multiple features:
-- Displays a curated list of different games and teams
-- Includes a search bar for finding specific games
+- Displays a curated list of random recommended games
+- Includes a search bar for finding specific games and teams, displaying a total of 12 top matches and recommended results if no matches found with 2 pages
 - Features navigation buttons for Login, Profile, and Build Team
+- Team joining notifications, acceptance, and rejections upon request
+- Navigates to the user's profile
+- Options for login and logout
 
 ### Game Page
 When a user clicks on a game title from the home page:
