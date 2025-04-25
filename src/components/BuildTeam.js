@@ -7,7 +7,7 @@ const BuildTeam = () => {
   const location = useLocation();
   const { gameId } = location.state || {};
 
-  const RAWG_API_KEY = 'e237edcd3f4b40a8a534b21ea8999527';
+  const RAWG_API_KEY = process.env.REACT_APP_RAWG_API_KEY;
 
   const [game, setGame] = useState({
     id: '',
