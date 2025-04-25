@@ -114,23 +114,13 @@ const ProfilePage = () => {
                     gameTeams = [
                       {
                         id: 101,
-                        name: "Alpha Squad",
-                        description: "Our premier demonstration team",
+                        name: "Create A Team to see it here",
+                        description: "Example team",
                         members: [1, 2, 3],
                         fromTime: "2025-04-23T10:00:00.000Z",
                         toTime:   "2025-04-23T12:00:00.000Z",
                         img: placeholderImg,
                         gameName: "Demo Game A"
-                      },
-                      {
-                        id: 102,
-                        name: "Beta Crew",
-                        description: "Backup showcase group",
-                        members: [4, 5],
-                        fromTime: "2025-04-23T13:00:00.000Z",
-                        toTime:   "2025-04-23T15:00:00.000Z",
-                        img: placeholderImg,
-                        gameName: "Demo Game B"
                       }
                     ];
                 }
