@@ -36,8 +36,8 @@ const ProfilePage = () => {
             }
 
             const [meRes, commentsRes] = await Promise.all([
-                fetch('http://10.44.140.30:8080/user/me', { headers }),
-                fetch('http://10.44.140.30:8080/game_info/comments/me', { headers })
+                fetch('http://localhost:8080/user/me', { headers }),
+                fetch('http://localhost:8080/game_info/comments/me', { headers })
                 // fetch('http://localhost:8080/teams/find',   { headers }),
             ]);
 
@@ -51,7 +51,7 @@ const ProfilePage = () => {
             const enrichedComments = await Promise.all(
                 commentsData.map(async comment => {
                     const gameRes = await fetch(
-                        `http://10.44.140.30:8080/game_info/${comment.gameId}`,
+                        `http://localhost:8080/game_info/${comment.gameId}`,
                         { headers }
                     );
                     const gameData = gameRes.ok ? await gameRes.json() : {};
@@ -67,7 +67,7 @@ const ProfilePage = () => {
             );
 
 
-            const teamsRes = await fetch('http://10.44.140.30:8080/teams/me', { headers });
+            const teamsRes = await fetch('http://localhost:8080/teams/me', { headers });
             console.log('Teams API response:', teamsRes);
             let teamsData = [];
             if (teamsRes.ok) {
@@ -84,7 +84,7 @@ const ProfilePage = () => {
                     let gameName = '';
                     try {
                         const gameRes = await fetch(
-                            `http://10.44.140.30:8080/game_info/${team.gameId}`,
+                            `http://localhost:8080/game_info/${team.gameId}`,
                             { headers }
                         );
                         if (gameRes.ok) {
@@ -282,7 +282,7 @@ const ProfilePage = () => {
 
             console.log("Payload to send:", payload);
 
-            const response = await fetch('http://10.44.140.30:8080/user/edit', {
+            const response = await fetch('http://localhost:8080/user/edit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

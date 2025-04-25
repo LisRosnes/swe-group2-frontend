@@ -31,7 +31,7 @@ function Login() {
     try {
       setLoading(true);
 
-      const response = await fetch('http://10.44.140.30:8080/user/login', {
+      const response = await fetch('http://localhost:8080/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ function Login() {
       localStorage.setItem('authToken', token);
 
 
-      const profileResponse = await fetch('http://10.44.140.30:8080/user/me', {
+      const profileResponse = await fetch('http://localhost:8080/user/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
